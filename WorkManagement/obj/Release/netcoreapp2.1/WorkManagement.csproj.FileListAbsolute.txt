@@ -1,0 +1,14 @@
+D:\BigProTech\WorkManagement\WorkManagement\bin\Release\netcoreapp2.1\WorkManagement.deps.json
+D:\BigProTech\WorkManagement\WorkManagement\bin\Release\netcoreapp2.1\WorkManagement.runtimeconfig.json
+D:\BigProTech\WorkManagement\WorkManagement\bin\Release\netcoreapp2.1\WorkManagement.runtimeconfig.dev.json
+D:\BigProTech\WorkManagement\WorkManagement\bin\Release\netcoreapp2.1\WorkManagement.dll
+D:\BigProTech\WorkManagement\WorkManagement\bin\Release\netcoreapp2.1\WorkManagement.pdb
+D:\BigProTech\WorkManagement\WorkManagement\obj\Release\netcoreapp2.1\WorkManagement.csproj.CoreCompileInputs.cache
+D:\BigProTech\WorkManagement\WorkManagement\obj\Release\netcoreapp2.1\WorkManagement.RazorAssemblyInfo.cache
+D:\BigProTech\WorkManagement\WorkManagement\obj\Release\netcoreapp2.1\WorkManagement.RazorAssemblyInfo.cs
+D:\BigProTech\WorkManagement\WorkManagement\obj\Release\netcoreapp2.1\WorkManagement.AssemblyInfoInputs.cache
+D:\BigProTech\WorkManagement\WorkManagement\obj\Release\netcoreapp2.1\WorkManagement.AssemblyInfo.cs
+D:\BigProTech\WorkManagement\WorkManagement\obj\Release\netcoreapp2.1\WorkManagement.RazorTargetAssemblyInfo.cache
+D:\BigProTech\WorkManagement\WorkManagement\obj\Release\netcoreapp2.1\WorkManagement.dll
+D:\BigProTech\WorkManagement\WorkManagement\obj\Release\netcoreapp2.1\WorkManagement.pdb
+D:\BigProTech\WorkManagement\WorkManagement\obj\Release\netcoreapp2.1\WorkManagement.csprojAssemblyReference.cache
