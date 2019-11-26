@@ -234,7 +234,7 @@ namespace WorkManagement.Controllers
             var currentMinute = today.Minute;
             var currentTokenHour = createDate.Hour;
             var currentTokenMinute = createDate.Minute;
-            var result = "";
+            var result = "invalid";
             if (user.statusResetPassword == "has-reset")
             {
                 result = "has-reset";
