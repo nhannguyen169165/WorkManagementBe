@@ -16,5 +16,9 @@ namespace WorkManagement.Models
         public string Status { get; set; }
 
         public DateTime tokenRegisterDate { get; set; }
+
+        public string tokenResetPassword { get; set; }
+        public DateTime tokenResetPasswordDate { get; set; }
+        public string statusResetPassword { get; set; }
     }
 }

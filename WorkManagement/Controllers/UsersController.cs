@@ -44,7 +44,7 @@ namespace WorkManagement.Controllers
             string str = "";
             foreach(var item in user)
             {
-                var data = new { id = item.Id, email = item.Email, name = item.Fullname, password = item.Password, tagname = item.Tagname,status = item.Status, TokenRegister = item.tokenRegister , TokenRegisterDate = item.tokenRegisterDate};
+                var data = new { id = item.Id, email = item.Email, name = item.Fullname, password = item.Password, tagname = item.Tagname,status = item.Status, TokenRegister = item.tokenRegister , TokenResetPassword = item.tokenResetPassword};
                 str += JsonConvert.SerializeObject(data) + ",";
             }
             str = str.Remove(str.Length - 1);
@@ -96,6 +96,11 @@ namespace WorkManagement.Controllers
                 }else if(item.Password != null)
                 {
                     thisUser.Password = item.Password;
+                    thisUser.statusResetPassword = item.statusResetPassword;
+                }else if(item.statusResetPassword != null)
+                {
+                    thisUser.statusResetPassword = item.statusResetPassword;
+                    thisUser.tokenResetPassword = item.tokenResetPassword;
                 }
                 else
                 {
@@ -130,6 +135,7 @@ namespace WorkManagement.Controllers
         {
             string str = "Tạo thành công";
             User u = new User();
+            DateTime today = DateTime.Now;
             foreach (var item in user.userData)
             {
                 u.Email = item.Email;
@@ -139,6 +145,7 @@ namespace WorkManagement.Controllers
                 u.Status = item.Status;
                 u.tokenRegister = item.tokenRegister;
                 u.tokenRegisterDate = item.tokenRegisterDate.ToLocalTime();
+                u.tokenResetPasswordDate = today;
             }
             _context.User.Add(u);
             var result = JsonConvert.SerializeObject(new { result = str });
@@ -201,6 +208,54 @@ namespace WorkManagement.Controllers
                 if (currentDate == currentTokenDate)
                 {
                     if (currentHour != currentTokenHour && createDate.Minute == 55)
+                    {
+                        result = "invalid";
+                    }
+                    else if (currentHour == currentTokenHour && (currentMinute - currentTokenMinute) >= 6)
+                    {
+                        result = "invalid";
+                    }
+                    else if (currentHour == currentTokenHour && (currentMinute - currentTokenMinute) <= 5)
+                    {
+                        result = "valid";
+                    }
+                    return Ok(JsonConvert.SerializeObject(new { Result = result }));
+                }
+            }
+            return Ok(JsonConvert.SerializeObject(new { Result = result }));
+        }
+
+        [HttpGet]
+        [Route("ValidateResetPassword/{token}")]
+        public async Task<IActionResult> ValidateResetPassword([FromRoute] string token)
+        {
+            var user = await _context.User.SingleOrDefaultAsync(m => m.tokenResetPassword == token);
+            DateTime today = DateTime.Now;
+            var createDate = user.tokenResetPasswordDate;
+            var currentDate = Int32.Parse(today.Day + "" + today.Month + "" + today.Year);
+            var currentTokenDate = Int32.Parse(createDate.Day + "" + createDate.Month + "" + createDate.Year);
+            var currentHour = today.Hour;
+            var currentMinute = today.Minute;
+            var currentTokenHour = createDate.Hour;
+            var currentTokenMinute = createDate.Minute;
+            var result = "";
+            if (user.statusResetPassword == "has-reset")
+            {
+                result = "has-reset";
+            }
+            else
+            {
+                if (createDate.Hour == 23 && createDate.Minute == 55)
+                {
+                    currentTokenHour = 22;
+                    currentHour = currentHour - 1;
+                }
+                if (currentDate == currentTokenDate)
+                {
+                    if ((currentHour - currentTokenHour) == 1 && createDate.Minute >= 55)
+                    {
+                        result = "valid";
+                    }else if(currentHour != currentTokenHour)
                     {
                         result = "invalid";
                     }
