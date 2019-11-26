@@ -31,7 +31,7 @@ namespace WorkManagement.Controllers
             try
             {
                 var message = new MimeMessage();
-                message.From.Add(new MailboxAddress("Big Pro Tech company", "nhannguyen169165@gmail.com"));
+                message.From.Add(new MailboxAddress("Big Pro Tech company", "wmemailservice@gmail.com"));
                 message.To.Add(new MailboxAddress(email.emailTo));
                 message.Subject = email.titleMessage;
                 message.Body = new TextPart("plain")
@@ -41,7 +41,7 @@ namespace WorkManagement.Controllers
                 using (var client = new SmtpClient())
                 {
                     client.Connect(email.domainEmail, email.portDomainEmail, false);
-                    client.Authenticate("nhannguyen169165@gmail.com","nhanvahoa");
+                    client.Authenticate("wmemailservice@gmail.com","bigprotech");
                     await client.SendAsync(message);
                     await client.DisconnectAsync(true);
                 }
