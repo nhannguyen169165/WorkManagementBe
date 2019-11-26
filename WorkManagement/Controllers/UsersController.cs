@@ -141,7 +141,7 @@ namespace WorkManagement.Controllers
                 u.Email = item.Email;
                 u.Fullname = item.Fullname;
                 u.Password = item.Password;
-                u.Tagname = item.Password;
+                u.Tagname = item.Tagname;
                 u.Status = item.Status;
                 u.tokenRegister = item.tokenRegister;
                 u.tokenRegisterDate = item.tokenRegisterDate.ToLocalTime();
