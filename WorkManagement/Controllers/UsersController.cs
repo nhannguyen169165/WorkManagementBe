@@ -193,7 +193,7 @@ namespace WorkManagement.Controllers
             var currentMinute = today.Minute;
             var currentTokenHour = createDate.Hour;
             var currentTokenMinute = createDate.Minute;
-            var result = "";
+            var result = "invalid";
             if (user.Status == "Active")
             {
                 result = "has-active";
@@ -207,13 +207,9 @@ namespace WorkManagement.Controllers
                 }
                 if (currentDate == currentTokenDate)
                 {
-                    if (currentHour != currentTokenHour && createDate.Minute == 55)
+                    if ((currentHour - currentTokenHour) == 1 && createDate.Minute >= 55)
                     {
-                        result = "invalid";
-                    }
-                    else if (currentHour == currentTokenHour && (currentMinute - currentTokenMinute) >= 6)
-                    {
-                        result = "invalid";
+                        result = "valid";
                     }
                     else if (currentHour == currentTokenHour && (currentMinute - currentTokenMinute) <= 5)
                     {
@@ -255,13 +251,6 @@ namespace WorkManagement.Controllers
                     if ((currentHour - currentTokenHour) == 1 && createDate.Minute >= 55)
                     {
                         result = "valid";
-                    }else if(currentHour != currentTokenHour)
-                    {
-                        result = "invalid";
-                    }
-                    else if (currentHour == currentTokenHour && (currentMinute - currentTokenMinute) >= 6)
-                    {
-                        result = "invalid";
                     }
                     else if (currentHour == currentTokenHour && (currentMinute - currentTokenMinute) <= 5)
                     {
