@@ -200,23 +200,19 @@ namespace WorkManagement.Controllers
             }
             else
             {
-                if (createDate.Hour == 23 && createDate.Minute == 55)
+                if (createDate.Hour == 12 && currentDate != currentTokenDate && currentMinute > 0)
                 {
-                    currentTokenHour = 22;
-                    currentHour = currentHour - 1;
+                    result = "valid";
                 }
-                if (currentDate == currentTokenDate)
+                if (currentDate == currentTokenDate && (currentHour - currentTokenHour) < 12)
                 {
-                    if ((currentHour - currentTokenHour) == 1 && createDate.Minute >= 55)
-                    {
-                        result = "valid";
-                    }
-                    else if (currentHour == currentTokenHour && (currentMinute - currentTokenMinute) <= 5)
-                    {
-                        result = "valid";
-                    }
-                    return Ok(JsonConvert.SerializeObject(new { Result = result }));
+                    result = "valid";
                 }
+                if (currentDate == currentTokenDate && (currentHour - currentTokenHour) == 12 && (currentMinute < currentTokenMinute))
+                {
+                    result = "valid";
+                }
+                return Ok(JsonConvert.SerializeObject(new { Result = result }));
             }
             return Ok(JsonConvert.SerializeObject(new { Result = result }));
         }
@@ -241,23 +237,19 @@ namespace WorkManagement.Controllers
             }
             else
             {
-                if (createDate.Hour == 23 && createDate.Minute == 55)
+                if (createDate.Hour == 12 && currentDate != currentTokenDate && currentMinute > 0)
                 {
-                    currentTokenHour = 22;
-                    currentHour = currentHour - 1;
+                    result = "valid";
                 }
-                if (currentDate == currentTokenDate)
+                if (currentDate == currentTokenDate && (currentHour - currentTokenHour) < 12)
                 {
-                    if ((currentHour - currentTokenHour) == 1 && createDate.Minute >= 55)
-                    {
-                        result = "valid";
-                    }
-                    else if (currentHour == currentTokenHour && (currentMinute - currentTokenMinute) <= 5)
-                    {
-                        result = "valid";
-                    }
-                    return Ok(JsonConvert.SerializeObject(new { Result = result }));
+                    result = "valid";
                 }
+                if (currentDate == currentTokenDate && (currentHour - currentTokenHour) == 12 && (currentMinute < currentTokenMinute))
+                {
+                    result = "valid";
+                }
+                return Ok(JsonConvert.SerializeObject(new { Result = result }));
             }
             return Ok(JsonConvert.SerializeObject(new { Result = result }));
         }
