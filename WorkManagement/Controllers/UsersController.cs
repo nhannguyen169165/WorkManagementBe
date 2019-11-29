@@ -101,6 +101,7 @@ namespace WorkManagement.Controllers
                 {
                     thisUser.statusResetPassword = item.statusResetPassword;
                     thisUser.tokenResetPassword = item.tokenResetPassword;
+                    thisUser.tokenResetPasswordDate = item.tokenResetPasswordDate;
                 }
                 else
                 {
@@ -185,36 +186,44 @@ namespace WorkManagement.Controllers
         public async Task<IActionResult> ValidateRegisterEmail([FromRoute] string token)
         {
             var user = await _context.User.SingleOrDefaultAsync(m => m.tokenRegister == token);
-            DateTime today = DateTime.Now;
-            var createDate = user.tokenRegisterDate;
-            var currentDate = Int32.Parse(today.Day + "" + today.Month + "" + today.Year);
-            var currentTokenDate = Int32.Parse(createDate.Day + "" + createDate.Month + "" + createDate.Year);
-            var currentHour = today.Hour;
-            var currentMinute = today.Minute;
-            var currentTokenHour = createDate.Hour;
-            var currentTokenMinute = createDate.Minute;
             var result = "invalid";
-            if (user.Status == "Active")
+            if (user == null)
             {
-                result = "has-active";
+               return Ok(JsonConvert.SerializeObject(new { Result = result }));
             }
             else
             {
-                if (createDate.Hour == 12 && currentDate != currentTokenDate && currentMinute > 0)
+                DateTime today = DateTime.Now;
+                var createDate = user.tokenRegisterDate;
+                var currentDate = Int32.Parse(today.Day + "" + today.Month + "" + today.Year);
+                var currentTokenDate = Int32.Parse(createDate.Day + "" + createDate.Month + "" + createDate.Year);
+                var currentHour = today.Hour;
+                var currentMinute = today.Minute;
+                var currentTokenHour = createDate.Hour;
+                var currentTokenMinute = createDate.Minute;
+
+                if (user.Status == "Active")
                 {
-                    result = "valid";
+                    result = "has-active";
                 }
-                if (currentDate == currentTokenDate && (currentHour - currentTokenHour) < 12)
+                else
                 {
-                    result = "valid";
-                }
-                if (currentDate == currentTokenDate && (currentHour - currentTokenHour) == 12 && (currentMinute < currentTokenMinute))
-                {
-                    result = "valid";
+                    if (createDate.Hour == 12 && currentDate != currentTokenDate && currentMinute > 0)
+                    {
+                        result = "valid";
+                    }
+                    if (currentDate == currentTokenDate && (currentHour - currentTokenHour) < 12)
+                    {
+                        result = "valid";
+                    }
+                    if (currentDate == currentTokenDate && (currentHour - currentTokenHour) == 12 && (currentMinute < currentTokenMinute))
+                    {
+                        result = "valid";
+                    }
+                    return Ok(JsonConvert.SerializeObject(new { Result = result }));
                 }
                 return Ok(JsonConvert.SerializeObject(new { Result = result }));
             }
-            return Ok(JsonConvert.SerializeObject(new { Result = result }));
         }
 
         [HttpGet]
@@ -222,36 +231,44 @@ namespace WorkManagement.Controllers
         public async Task<IActionResult> ValidateResetPassword([FromRoute] string token)
         {
             var user = await _context.User.SingleOrDefaultAsync(m => m.tokenResetPassword == token);
-            DateTime today = DateTime.Now;
-            var createDate = user.tokenResetPasswordDate;
-            var currentDate = Int32.Parse(today.Day + "" + today.Month + "" + today.Year);
-            var currentTokenDate = Int32.Parse(createDate.Day + "" + createDate.Month + "" + createDate.Year);
-            var currentHour = today.Hour;
-            var currentMinute = today.Minute;
-            var currentTokenHour = createDate.Hour;
-            var currentTokenMinute = createDate.Minute;
             var result = "invalid";
-            if (user.statusResetPassword == "has-reset")
+            if (user == null)
             {
-                result = "has-reset";
+                return Ok(JsonConvert.SerializeObject(new { Result = result }));
             }
             else
             {
-                if (createDate.Hour == 12 && currentDate != currentTokenDate && currentMinute > 0)
+                DateTime today = DateTime.Now;
+                var createDate = user.tokenResetPasswordDate;
+                var currentDate = Int32.Parse(today.Day + "" + today.Month + "" + today.Year);
+                var currentTokenDate = Int32.Parse(createDate.Day + "" + createDate.Month + "" + createDate.Year);
+                var currentHour = today.Hour;
+                var currentMinute = today.Minute;
+                var currentTokenHour = createDate.Hour;
+                var currentTokenMinute = createDate.Minute;
+
+                if (user.statusResetPassword == "has-reset")
                 {
-                    result = "valid";
+                    result = "has-reset";
                 }
-                if (currentDate == currentTokenDate && (currentHour - currentTokenHour) < 12)
+                else
                 {
-                    result = "valid";
-                }
-                if (currentDate == currentTokenDate && (currentHour - currentTokenHour) == 12 && (currentMinute < currentTokenMinute))
-                {
-                    result = "valid";
+                    if (createDate.Hour == 12 && currentDate != currentTokenDate && currentMinute > 0)
+                    {
+                        result = "valid";
+                    }
+                    if (currentDate == currentTokenDate && (currentHour - currentTokenHour) < 12)
+                    {
+                        result = "valid";
+                    }
+                    if (currentDate == currentTokenDate && (currentHour - currentTokenHour) == 12 && (currentMinute < currentTokenMinute))
+                    {
+                        result = "valid";
+                    }
+                    return Ok(JsonConvert.SerializeObject(new { Result = result }));
                 }
                 return Ok(JsonConvert.SerializeObject(new { Result = result }));
             }
-            return Ok(JsonConvert.SerializeObject(new { Result = result }));
         }
     }
 }

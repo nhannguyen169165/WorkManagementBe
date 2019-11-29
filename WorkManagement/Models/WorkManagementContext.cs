@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using WorkManagement.Models;
 
 namespace WorkManagement.Models
 {
@@ -16,6 +17,8 @@ namespace WorkManagement.Models
         }
 
         public virtual DbSet<User> User { get; set; }
+
+        public DbSet<WorkManagement.Models.Authentication> Authentication { get; set; }
 
     }
 }
