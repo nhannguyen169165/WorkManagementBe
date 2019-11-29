@@ -93,6 +93,7 @@ namespace WorkManagement.Controllers
                     thisUser.Fullname = item.Fullname;
                     thisUser.Tagname = item.Tagname;
                     thisUser.Status = item.Status;
+                    thisUser.tokenRegister = item.tokenRegister;
                 }else if(item.Password != null)
                 {
                     thisUser.Password = item.Password;
@@ -136,6 +137,7 @@ namespace WorkManagement.Controllers
         {
             string str = "Tạo thành công";
             User u = new User();
+            Authentication a = new Authentication();
             DateTime today = DateTime.Now;
             foreach (var item in user.userData)
             {
@@ -149,8 +151,13 @@ namespace WorkManagement.Controllers
                 u.tokenResetPasswordDate = today;
             }
             _context.User.Add(u);
-            var result = JsonConvert.SerializeObject(new { result = str });
             await _context.SaveChangesAsync();
+            a.Admin_id = 1;
+            a.User_id = u.Id;
+            _context.Authentication.Add(a);
+            await _context.SaveChangesAsync();
+            var result = JsonConvert.SerializeObject(new { result = str });
+           
             return Ok(result);
         }
 
@@ -160,6 +167,7 @@ namespace WorkManagement.Controllers
         public async Task<IActionResult> DeleteUser([FromRoute] int id)
         {
             var user = await _context.User.FirstOrDefaultAsync(m => m.Id == id);
+            var authentication = await _context.Authentication.FirstOrDefaultAsync(m => m.User_id == id);
             string str = "Xóa thành công";
             var result = JsonConvert.SerializeObject(new { result = str });
             if (user == null)
@@ -169,6 +177,7 @@ namespace WorkManagement.Controllers
             else
             {
                 _context.User.Remove(user);
+                _context.Authentication.Remove(authentication);
                 await _context.SaveChangesAsync();
                 return Ok(result);
             }
