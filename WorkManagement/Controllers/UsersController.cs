@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.SignalR;
 using WorkManagement.Hubs;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WorkManagement.Controllers
 {
@@ -36,7 +37,7 @@ namespace WorkManagement.Controllers
 
       
         // GET: api/Users
-        [HttpGet]
+        [HttpGet,Authorize(Roles = "Admin")]
         [Route("GetAllUser")]
         public async Task<IActionResult> GetAllUser(string type)
         {
@@ -44,7 +45,7 @@ namespace WorkManagement.Controllers
             string str = "";
             foreach(var item in user)
             {
-                var data = new { id = item.Id, email = item.Email, name = item.Fullname, password = item.Password, tagname = item.Tagname,status = item.Status, TokenRegister = item.tokenRegister , TokenResetPassword = item.tokenResetPassword};
+                var data = new { id = item.Id, email = item.Email, name = item.Fullname, password = item.Password, tagname = item.Tagname,role = item.Role,status = item.Status, TokenRegister = item.tokenRegister , TokenResetPassword = item.tokenResetPassword};
                 str += JsonConvert.SerializeObject(data) + ",";
             }
             str = str.Remove(str.Length - 1);
@@ -61,12 +62,12 @@ namespace WorkManagement.Controllers
         }
 
        // GET: api/Users/5
-        [HttpGet]
+        [HttpGet,Authorize(Roles = "Admin")]
         [Route("GetUserDetail/{id}")]
         public async Task<IActionResult> GetUserDetail([FromRoute] int id)
         {
             var user = await _context.User.SingleOrDefaultAsync(m => m.Id == id); 
-            var data = new { id = user.Id, email = user.Email, name = user.Fullname, password = user.Password, tagname = user.Tagname, TokenRegister = user.tokenRegister , status = user.Status};
+            var data = new { id = user.Id, email = user.Email, name = user.Fullname, password = user.Password, tagname = user.Tagname, role = user.Role, TokenRegister = user.tokenRegister , status = user.Status};
             var str = JsonConvert.SerializeObject(data);
             if (user == null)
             {
@@ -80,7 +81,7 @@ namespace WorkManagement.Controllers
         }
 
             // PUT: api/Users/5
-        [HttpPut]
+        [HttpPut,Authorize(Roles = "Admin")]
         [Route("EditUser/{id}")]
         public async Task<IActionResult> UpdateUser([FromRoute] int id, [FromBody] user user)
         {
@@ -93,21 +94,9 @@ namespace WorkManagement.Controllers
                     thisUser.Fullname = item.Fullname;
                     thisUser.Tagname = item.Tagname;
                     thisUser.Status = item.Status;
+                    thisUser.Role = item.Role;
                     thisUser.tokenRegister = item.tokenRegister;
-                }else if(item.Password != null)
-                {
-                    thisUser.Password = item.Password;
-                    thisUser.statusResetPassword = item.statusResetPassword;
-                }else if(item.statusResetPassword != null)
-                {
-                    thisUser.statusResetPassword = item.statusResetPassword;
-                    thisUser.tokenResetPassword = item.tokenResetPassword;
-                    thisUser.tokenResetPasswordDate = item.tokenResetPasswordDate;
                 }
-                else
-                {
-                    thisUser.Status = item.Status;
-                } 
             }
 
             _context.User.Update(thisUser);
@@ -132,7 +121,7 @@ namespace WorkManagement.Controllers
 
         // POST: api/Users
         [HttpPost]
-        [Route("CreateUser")]
+        [Route("CreateUser"),Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateUser([FromBody] user user)
         {
             string str = "Tạo thành công";
@@ -146,6 +135,7 @@ namespace WorkManagement.Controllers
                 u.Password = item.Password;
                 u.Tagname = item.Tagname;
                 u.Status = item.Status;
+                u.Role = item.Role;
                 u.tokenRegister = item.tokenRegister;
                 u.tokenRegisterDate = item.tokenRegisterDate.ToLocalTime();
                 u.tokenResetPasswordDate = today;
@@ -162,7 +152,7 @@ namespace WorkManagement.Controllers
         }
 
         // DELETE: api/Users/5
-        [HttpDelete]
+        [HttpDelete,Authorize(Roles = "Admin")]
         [Route("DeleteUser/{id}")]
         public async Task<IActionResult> DeleteUser([FromRoute] int id)
         {
@@ -217,11 +207,11 @@ namespace WorkManagement.Controllers
                 }
                 else
                 {
-                    if (createDate.Hour == 12 && currentDate != currentTokenDate && currentMinute > 0)
+                    if (createDate.Hour > 12 && ((24 - createDate.Hour) + today.Hour) <= 12 && currentDate != currentTokenDate && (currentMinute < currentTokenMinute))
                     {
                         result = "valid";
                     }
-                    if (currentDate == currentTokenDate && (currentHour - currentTokenHour) < 12)
+                    if (currentDate == currentTokenDate && (currentHour - currentTokenHour) <= 12)
                     {
                         result = "valid";
                     }
@@ -255,18 +245,17 @@ namespace WorkManagement.Controllers
                 var currentMinute = today.Minute;
                 var currentTokenHour = createDate.Hour;
                 var currentTokenMinute = createDate.Minute;
-
                 if (user.statusResetPassword == "has-reset")
                 {
                     result = "has-reset";
                 }
                 else
                 {
-                    if (createDate.Hour == 12 && currentDate != currentTokenDate && currentMinute > 0)
+                    if (createDate.Hour > 12 && ((24 - createDate.Hour) + today.Hour) <= 12 && currentDate != currentTokenDate && (currentMinute < currentTokenMinute))
                     {
                         result = "valid";
                     }
-                    if (currentDate == currentTokenDate && (currentHour - currentTokenHour) < 12)
+                    if (currentDate == currentTokenDate && (currentHour - currentTokenHour) <= 12)
                     {
                         result = "valid";
                     }
@@ -277,6 +266,101 @@ namespace WorkManagement.Controllers
                     return Ok(JsonConvert.SerializeObject(new { Result = result }));
                 }
                 return Ok(JsonConvert.SerializeObject(new { Result = result }));
+            }
+        }
+
+        [HttpPost]
+        [Route("CheckEmailExists")]
+        public IActionResult checkEmailExists([FromBody] user user)
+        {
+            var u = _context.User;
+            var email = "";
+            var result = "";
+            foreach (var x in user.userData)
+            {
+                email = x.Email;
+            }
+            foreach(var item in u)
+            {
+                if(item.Email == email)
+                {
+                    result = JsonConvert.SerializeObject(new { Result = true, userId = item.Id });
+                }
+                else
+                {
+                    result = JsonConvert.SerializeObject(new { Result = false });
+                }
+            }
+            return Ok(result);
+        }
+
+        [HttpPut]
+        [Route("EditUserNoAuth/{id}")]
+        public async Task<IActionResult> EditUserNoAuth([FromRoute] int id, [FromBody] user user)
+        {
+            string str = "";
+            var thisUser = await _context.User.SingleOrDefaultAsync(m => m.Id == id);
+            foreach (var item in user.userData)
+            {
+                if (item.Password != null)
+                {
+                    thisUser.Password = item.Password;
+                    thisUser.statusResetPassword = item.statusResetPassword;
+                }
+                else if (item.statusResetPassword != null)
+                {
+                    thisUser.statusResetPassword = item.statusResetPassword;
+                    thisUser.tokenResetPassword = item.tokenResetPassword;
+                    thisUser.tokenResetPasswordDate = item.tokenResetPasswordDate.ToLocalTime();
+                }
+                else
+                {
+                    thisUser.Status = item.Status;
+                }
+            }
+
+            _context.User.Update(thisUser);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!UserExists(id))
+                {
+                    str = "Người dùng không tồn tại !";
+                }
+                else
+                {
+                    str = "Cập nhật thành công";
+                }
+            }
+            var result = JsonConvert.SerializeObject(new { result = str });
+            return Ok(result);
+        }
+
+        // GET: api/Users
+        [HttpGet]
+        [Route("GetAllUserNoAuth")]
+        public async Task<IActionResult> GetAllUserNoAuth(string type)
+        {
+            var user = _context.User;
+            string str = "";
+            foreach (var item in user)
+            {
+                var data = new { id = item.Id, TokenRegister = item.tokenRegister, TokenResetPassword = item.tokenResetPassword };
+                str += JsonConvert.SerializeObject(data) + ",";
+            }
+            str = str.Remove(str.Length - 1);
+            str = "[" + str + "]";
+            if (user == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(str);
+
             }
         }
     }

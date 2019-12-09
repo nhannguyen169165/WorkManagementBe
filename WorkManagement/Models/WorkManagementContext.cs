@@ -17,7 +17,7 @@ namespace WorkManagement.Models
         }
 
         public virtual DbSet<User> User { get; set; }
-
+        public virtual DbSet<Admin> Admin { get; set; }
         public DbSet<WorkManagement.Models.Authentication> Authentication { get; set; }
 
     }

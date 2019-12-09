@@ -10,7 +10,7 @@ namespace WorkManagement.Models
         public string Email { get; set; }
         public string Password { get; set; }
         public string Tagname { get; set; }
-
+        public string Role { get; set; }
         public string tokenRegister { get; set; }
 
         public string Status { get; set; }

@@ -13,6 +13,9 @@ using Microsoft.Extensions.Options;
 using WorkManagement.Models;
 using Microsoft.EntityFrameworkCore;
 using WorkManagement.Hubs;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Text;
 
 namespace WorkManagement
 {
@@ -46,6 +49,27 @@ namespace WorkManagement
             var connection = @"Server=DESKTOP-ARCB49O;Database=WorkManagement;Trusted_Connection=True;ConnectRetryCount=0";
             services.AddDbContext<WorkManagementContext>(options => options.UseSqlServer(connection));
             services.AddSignalR();
+
+
+            services.AddAuthentication(opt => {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+
+                    ValidIssuer = "https://localhost:44320",
+                    ValidAudience = "https://localhost:44320",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"))
+                };
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -60,6 +84,7 @@ namespace WorkManagement
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseCors("AllowAll");
             app.UseMvc();
             app.UseSignalR(routes =>
