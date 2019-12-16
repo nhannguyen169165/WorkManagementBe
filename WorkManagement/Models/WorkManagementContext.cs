@@ -18,7 +18,8 @@ namespace WorkManagement.Models
 
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<Admin> Admin { get; set; }
-        public DbSet<WorkManagement.Models.Authentication> Authentication { get; set; }
-
+        public virtual DbSet<Authentication> Authentication { get; set; }
+        public virtual DbSet<Project> Project { get; set; }
+        public virtual DbSet<ListUserInProject> ListUserInProject { get; set; }
     }
 }

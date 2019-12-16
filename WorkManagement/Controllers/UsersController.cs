@@ -38,15 +38,25 @@ namespace WorkManagement.Controllers
       
         // GET: api/Users
         [HttpGet,Authorize(Roles = "Admin")]
-        [Route("GetAllUser")]
-        public async Task<IActionResult> GetAllUser(string type)
+        [Route("GetAllUser/{AdminId}")]
+        public async Task<IActionResult> GetAllUser([FromRoute] int AdminId,string type)
         {
             var user = _context.User;
+            var userSort = _context.Authentication;
             string str = "";
             foreach(var item in user)
             {
-                var data = new { id = item.Id, email = item.Email, name = item.Fullname, password = item.Password, tagname = item.Tagname,role = item.Role,status = item.Status, TokenRegister = item.tokenRegister , TokenResetPassword = item.tokenResetPassword};
-                str += JsonConvert.SerializeObject(data) + ",";
+                foreach(var x in userSort)
+                {
+                    if(x.Admin_id == AdminId)
+                    {
+                        if(x.User_id == item.Id)
+                        {
+                            var data = new { id = item.Id, email = item.Email, name = item.Fullname, password = item.Password, tagname = item.Tagname, role = item.Role, status = item.Status, TokenRegister = item.tokenRegister, TokenResetPassword = item.tokenResetPassword };
+                            str += JsonConvert.SerializeObject(data) + ",";
+                        }
+                    }
+                }
             }
             str = str.Remove(str.Length - 1);
             str = "[" + str + "]";

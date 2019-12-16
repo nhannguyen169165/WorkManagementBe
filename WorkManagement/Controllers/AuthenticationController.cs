@@ -52,6 +52,7 @@ namespace WorkManagement.Controllers
                         select new
                         {
                             userId = auth.User_id,
+                            userName = user.Fullname,
                             userEmail = user.Email,
                             userPassword = user.Password,
                             userStatus = user.Status,
@@ -80,11 +81,11 @@ namespace WorkManagement.Controllers
                         claims: new List<Claim> {
                               new Claim(ClaimTypes.Role, item.userRole)
                         },
-                        expires: DateTime.Now.AddHours(24),
+                        expires: DateTime.Now.AddHours(12),
                         signingCredentials: signinCredentials
                     );
                     var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
-                    var result = new { id = item.userId, status = item.userStatus, role = item.userRole, Company = item.company, token = tokenString };
+                    var result = new { id = item.userId, name = item.userName,status = item.userStatus, role = item.userRole, Company = item.company, token = tokenString };
                     str = JsonConvert.SerializeObject(result);
                 }
                 else if (item.adminEmail == email && item.adminPassword == password)
@@ -95,11 +96,11 @@ namespace WorkManagement.Controllers
                         claims: new List<Claim> {
                               new Claim(ClaimTypes.Role, item.adminRole)
                         },
-                        expires: DateTime.Now.AddHours(24),
+                        expires: DateTime.Now.AddHours(12),
                         signingCredentials: signinCredentials
                     );
                     var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
-                    var result = new { id = item.adminId, status = item.adminStatus, role = item.adminRole, Company = item.company, token = tokenString };
+                    var result = new { id = item.adminId,name = item.company, status = item.adminStatus, role = item.adminRole, Company = item.company, token = tokenString };
                     str = JsonConvert.SerializeObject(result);
                 }
             }
