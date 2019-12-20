@@ -286,18 +286,25 @@ namespace WorkManagement.Controllers
             var u = _context.User;
             var email = "";
             var result = "";
-            foreach (var x in user.userData)
+            if (u == null)
             {
-                email = x.Email;
-                foreach (var item in u)
+                return NotFound();
+            }
+            else
+            {
+                foreach (var x in user.userData)
                 {
-                    if (item.Email == email)
+                    email = x.Email;
+                    foreach (var item in u)
                     {
-                        result = JsonConvert.SerializeObject(new { Result = true, userId = item.Id });
+                        if (item.Email == email)
+                        {
+                            result = JsonConvert.SerializeObject(new { Result = true, userId = item.Id });
+                        }
                     }
                 }
+                return Ok(result);
             }
-            return Ok(result);
         }
 
         [HttpPut]

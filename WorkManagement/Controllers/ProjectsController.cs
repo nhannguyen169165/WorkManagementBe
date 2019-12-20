@@ -38,24 +38,27 @@ namespace WorkManagement.Controllers
         {
             var project = _context.Project;
             string str = "";
-            foreach (var item in project)
-            {
-                if(item.User_id == UserId)
-                {
-                    var data = new { id = item.Id, name = item.Name, description = item.Description, status = item.Status,progress = 100 };
-                    str += JsonConvert.SerializeObject(data) + ",";
-                }
-            }
-            str = str.Remove(str.Length - 1);
-            str = "[" + str + "]";
             if (project == null)
             {
                 return NotFound();
             }
             else
             {
+                foreach (var item in project)
+                {
+                    if (item.User_id == UserId)
+                    {
+                        var data = new { id = item.Id, name = item.Name, description = item.Description, status = item.Status, progress = 100 };
+                        str += JsonConvert.SerializeObject(data) + ",";
+                    }
+                }
+                if (str == "")
+                {
+                    return Ok("null");
+                }
+                str = str.Remove(str.Length - 1);
+                str = "[" + str + "]";
                 return Ok(str);
-
             }
         }
 
@@ -139,32 +142,41 @@ namespace WorkManagement.Controllers
             var userSort = _context.Authentication;
             var listMember = _context.ListUserInProject;
             string str = "";
-            foreach (var item in user)
-            {
-                foreach (var x in userSort)
-                {
-                    if (x.Admin_id == AdminId)
-                    {
-                        if (x.User_id == item.Id)
-                        {
-
-                            if(item.Status == "Active")
-                            {
-                                var data = new { id = item.Id, email = item.Email, name = item.Fullname, tagname = item.Tagname };
-                                str += JsonConvert.SerializeObject(data) + ",";
-                            }
-                        }
-                    }
-                }
-            }
-            str = str.Remove(str.Length - 1);
-            str = "[" + str + "]";
+            
             if (user == null)
+            {
+                return NotFound();
+            }
+            else if (listMember == null)
             {
                 return NotFound();
             }
             else
             {
+                foreach (var item in user)
+                {
+                    foreach (var x in userSort)
+                    {
+                        if (x.Admin_id == AdminId)
+                        {
+                            if (x.User_id == item.Id)
+                            {
+
+                                if (item.Status == "Active")
+                                {
+                                    var data = new { id = item.Id, email = item.Email, name = item.Fullname, tagname = item.Tagname };
+                                    str += JsonConvert.SerializeObject(data) + ",";
+                                }
+                            }
+                        }
+                    }
+                }
+                if (str == "")
+                {
+                    return Ok("null");
+                }
+                str = str.Remove(str.Length - 1);
+                str = "[" + str + "]";
                 return Ok(str);
 
             }
@@ -177,32 +189,38 @@ namespace WorkManagement.Controllers
         {
             var user = _context.User;
             var listMember = _context.ListUserInProject;
-            string str = "";
-            foreach (var item in user)
-            {
-                foreach (var x in listMember)
-                {
-                    if (x.Project_Id == ProjectId)
-                    {
-                        if (x.User_id == item.Id)
-                        {
-                            var data = new { id =x.Id,uid = item.Id ,email = item.Email, name = item.Fullname,tagname = item.Tagname};
-                            str += JsonConvert.SerializeObject(data) + ",";
-                        }
-                    }
-                }
-            }
-            str = str.Remove(str.Length - 1);
-            str = "[" + str + "]";
             if (user == null)
             {
                 return NotFound();
-            }
-            else
+            }else if(listMember == null)
             {
+                return NotFound();
+            }else
+            {
+                string str = "";
+                foreach (var item in user)
+                {
+                    foreach (var x in listMember)
+                    {
+                        if (x.Project_Id == ProjectId)
+                        {
+                            if (x.User_id == item.Id)
+                            {
+                                var data = new { id = x.Id, uid = item.Id, email = item.Email, name = item.Fullname, tagname = item.Tagname };
+                                str += JsonConvert.SerializeObject(data) + ",";
+                            }
+                        }
+                    }
+                }
+                if(str == "")
+                {
+                    return Ok("null");
+                }
+                str = str.Remove(str.Length - 1);
+                str = "[" + str + "]";
                 return Ok(str);
-
             }
+         
         }
 
         // POST: api/Projects
