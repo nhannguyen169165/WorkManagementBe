@@ -85,7 +85,7 @@ namespace WorkManagement.Controllers
                         signingCredentials: signinCredentials
                     );
                     var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
-                    var result = new { id = item.userId, name = item.userName,status = item.userStatus, role = item.userRole, Company = item.company, token = tokenString };
+                    var result = new { id = item.userId, AdminId = item.adminId, name = item.userName,status = item.userStatus, role = item.userRole, Company = item.company, token = tokenString };
                     str = JsonConvert.SerializeObject(result);
                 }
                 else if (item.adminEmail == email && item.adminPassword == password)
@@ -100,7 +100,7 @@ namespace WorkManagement.Controllers
                         signingCredentials: signinCredentials
                     );
                     var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
-                    var result = new { id = item.adminId,name = item.company, status = item.adminStatus, role = item.adminRole, Company = item.company, token = tokenString };
+                    var result = new { id = item.adminId, AdminId = "",name = item.company, status = item.adminStatus, role = item.adminRole, Company = item.company, token = tokenString };
                     str = JsonConvert.SerializeObject(result);
                 }
             }

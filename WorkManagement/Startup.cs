@@ -90,6 +90,7 @@ namespace WorkManagement
             app.UseSignalR(routes =>
             {
                 routes.MapHub<UserManagementHub>("/userManagement");
+                routes.MapHub<ProjectManagementHub>("/projectManagement");
             });
         }
     }

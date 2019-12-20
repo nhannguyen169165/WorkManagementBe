@@ -289,16 +289,12 @@ namespace WorkManagement.Controllers
             foreach (var x in user.userData)
             {
                 email = x.Email;
-            }
-            foreach(var item in u)
-            {
-                if(item.Email == email)
+                foreach (var item in u)
                 {
-                    result = JsonConvert.SerializeObject(new { Result = true, userId = item.Id });
-                }
-                else
-                {
-                    result = JsonConvert.SerializeObject(new { Result = false });
+                    if (item.Email == email)
+                    {
+                        result = JsonConvert.SerializeObject(new { Result = true, userId = item.Id });
+                    }
                 }
             }
             return Ok(result);
