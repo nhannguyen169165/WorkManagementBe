@@ -11,5 +11,10 @@ namespace WorkManagement.Hubs
         {
             await Clients.All.SendAsync("ReceiveMessage", data);
         }
+
+        public async Task SendResultDeleteUser(int userId)
+        {
+            await Clients.All.SendAsync("ReceiveResultDeleteUser", userId);
+        }
     }
 }

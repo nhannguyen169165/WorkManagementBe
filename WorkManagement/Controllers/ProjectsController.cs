@@ -32,7 +32,7 @@ namespace WorkManagement.Controllers
         }
 
         // GET: api/Projects
-        [HttpGet,Authorize]
+        [HttpGet,Authorize(Roles = "Project Manager")]
         [Route("GetProject/{UserId}")]
         public async Task<IActionResult> GetProjects([FromRoute] int UserId)
         {

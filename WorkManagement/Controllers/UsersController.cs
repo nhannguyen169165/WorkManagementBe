@@ -168,6 +168,8 @@ namespace WorkManagement.Controllers
         {
             var user = await _context.User.FirstOrDefaultAsync(m => m.Id == id);
             var authentication = await _context.Authentication.FirstOrDefaultAsync(m => m.User_id == id);
+            var project = _context.Project;
+            var listMember = _context.ListUserInProject;
             string str = "Xóa thành công";
             var result = JsonConvert.SerializeObject(new { result = str });
             if (user == null)
@@ -178,6 +180,27 @@ namespace WorkManagement.Controllers
             {
                 _context.User.Remove(user);
                 _context.Authentication.Remove(authentication);
+                foreach(var p in project)
+                {
+                    if(p.User_id == id)
+                    {
+                        _context.Project.Remove(p);
+                        foreach(var lm in listMember)
+                        {
+                            if(lm.Project_Id == p.Id)
+                            {
+                                _context.ListUserInProject.Remove(lm);
+                            }      
+                        }
+                    }
+                }
+                foreach (var lm in listMember)
+                {
+                    if (lm.User_id == id)
+                    {
+                        _context.ListUserInProject.Remove(lm);
+                    }
+                }
                 await _context.SaveChangesAsync();
                 return Ok(result);
             }
