@@ -54,7 +54,7 @@ namespace WorkManagement.Controllers
                 }
                 if (str == "")
                 {
-                    return Ok("null");
+                    return Ok("[]");
                 }
                 str = str.Remove(str.Length - 1);
                 str = "[" + str + "]";
@@ -90,8 +90,11 @@ namespace WorkManagement.Controllers
             var thisProject = await _context.Project.SingleOrDefaultAsync(m => m.Id == id);
             foreach (var item in project.projectData)
             {
-                thisProject.Name = item.Name;
-                thisProject.Description = item.Description;
+                if(thisProject.Name != null && thisProject.Description != null)
+                {
+                    thisProject.Name = item.Name;
+                    thisProject.Description = item.Description;
+                }
             }
 
             _context.Project.Update(thisProject);
@@ -135,8 +138,8 @@ namespace WorkManagement.Controllers
         }
         // GET: api/Users
         [HttpGet, Authorize(Roles = "Project Manager")]
-        [Route("GetAllMember/{AdminId}")]
-        public async Task<IActionResult> GetAllMember([FromRoute] int AdminId, string type)
+        [Route("GetAllMember/{AdminId},{UserId}")]
+        public async Task<IActionResult> GetAllMember([FromRoute] int AdminId, int UserId)
         {
             var user = _context.User;
             var userSort = _context.Authentication;
@@ -155,21 +158,25 @@ namespace WorkManagement.Controllers
             {
                 foreach (var item in user)
                 {
-                    foreach (var x in userSort)
+                    if(item.Id != UserId)
                     {
-                        if (x.Admin_id == AdminId)
+                        foreach (var x in userSort)
                         {
-                            if (x.User_id == item.Id)
+                            if (x.Admin_id == AdminId)
                             {
-
-                                if (item.Status == "Active")
+                                if (x.User_id == item.Id)
                                 {
-                                    var data = new { id = item.Id, email = item.Email, name = item.Fullname, tagname = item.Tagname };
-                                    str += JsonConvert.SerializeObject(data) + ",";
+
+                                    if (item.Status == "Active")
+                                    {
+                                        var data = new { id = item.Id, email = item.Email, name = item.Fullname, tagname = item.Tagname };
+                                        str += JsonConvert.SerializeObject(data) + ",";
+                                    }
                                 }
                             }
                         }
                     }
+                  
                 }
                 if (str == "")
                 {
@@ -214,7 +221,7 @@ namespace WorkManagement.Controllers
                 }
                 if(str == "")
                 {
-                    return Ok("null");
+                    return Ok("[]");
                 }
                 str = str.Remove(str.Length - 1);
                 str = "[" + str + "]";
@@ -242,7 +249,7 @@ namespace WorkManagement.Controllers
         }
 
         // DELETE: api/Projects/5
-        [HttpDelete, Authorize(Roles = "Project Manager")]
+        [HttpDelete]
         [Route("DeleteMember/{listId}")]
         public async Task<IActionResult> DeleteMember([FromRoute] string listId)
         {
@@ -273,6 +280,7 @@ namespace WorkManagement.Controllers
         public async Task<IActionResult> DeleteProject([FromRoute] int id)
         {
             var project = await _context.Project.FirstOrDefaultAsync(m => m.Id == id);
+            var listMember = _context.ListUserInProject;
             string str = "Xóa thành công";
             var result = JsonConvert.SerializeObject(new { result = str });
             if (project == null)
@@ -282,6 +290,13 @@ namespace WorkManagement.Controllers
             else
             {
                 _context.Project.Remove(project);
+                foreach (var lm in listMember)
+                {
+                    if (lm.Project_Id == id)
+                    {
+                        _context.ListUserInProject.Remove(lm);
+                    }
+                }
                 await _context.SaveChangesAsync();
                 return Ok(result);
             }
