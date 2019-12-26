@@ -250,29 +250,22 @@ namespace WorkManagement.Controllers
 
         // DELETE: api/Projects/5
         [HttpDelete]
-        [Route("DeleteMember/{listId}")]
-        public async Task<IActionResult> DeleteMember([FromRoute] string listId)
-        {
-            string[] data = listId.Split('-', StringSplitOptions.None);
+        [Route("DeleteMember/{id}")]
+        public async Task<IActionResult> DeleteMember([FromRoute] int id) { 
             string str = "Delete member successfully";
             var result = JsonConvert.SerializeObject(new { result = str });
-            foreach (var item in data)
-            {
-                var listUserProject = await _context.ListUserInProject.FirstOrDefaultAsync(m => m.Id == Int32.Parse(item)); 
-                if (listUserProject == null)
+            var listUserProject = await _context.ListUserInProject.FirstOrDefaultAsync(m => m.Id == id); 
+            if (listUserProject == null)
                 {
-                    return NotFound();
-                }
-                else
-                {
-                    _context.ListUserInProject.Remove(listUserProject);
-                    await _context.SaveChangesAsync();
-                
-                }
+                return NotFound();
             }
+            _context.ListUserInProject.Remove(listUserProject);
+            await _context.SaveChangesAsync();
             return Ok(result);
-
         }
+            
+
+      
 
         // DELETE: api/Projects/5
         [HttpDelete, Authorize(Roles = "Project Manager")]
