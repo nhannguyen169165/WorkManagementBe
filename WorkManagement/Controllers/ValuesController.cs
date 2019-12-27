@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-
+using WorkManagement.Models;
 namespace WorkManagement.Controllers
 {
     [Route("api/[controller]")]
@@ -26,8 +26,17 @@ namespace WorkManagement.Controllers
 
         // POST api/values
         [HttpPost]
+        [Route("CodeFirstDatabase")]
         public void Post([FromBody] string value)
         {
+            using (var context = new WorkManagementContext())
+            {
+                var temp = new Template();
+                temp.TemplateName = value;
+
+                context.Template.Add(temp);
+                context.SaveChanges();
+            }
         }
 
         // PUT api/values/5

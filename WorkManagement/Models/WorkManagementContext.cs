@@ -21,5 +21,6 @@ namespace WorkManagement.Models
         public virtual DbSet<Authentication> Authentication { get; set; }
         public virtual DbSet<Project> Project { get; set; }
         public virtual DbSet<ListUserInProject> ListUserInProject { get; set; }
+        public virtual DbSet<Template> Template { get; set; }
     }
 }

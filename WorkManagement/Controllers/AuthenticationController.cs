@@ -44,7 +44,7 @@ namespace WorkManagement.Controllers
             var email = authentication.email;
             var password = authentication.password;
 
-            var data = (from auth in _context.Authentication
+            var userData = (from auth in _context.Authentication
                         join user in _context.User
                         on auth.User_id equals user.Id
                         join admin in _context.Admin
@@ -58,20 +58,16 @@ namespace WorkManagement.Controllers
                             userStatus = user.Status,
                             userRole = user.Role,
                             adminId = auth.Admin_id,
-                            adminEmail = admin.Email,
-                            adminPassword = admin.Password,
-                            adminStatus = admin.Status,
-                            adminRole = admin.Role,
                             company = admin.Company
                         });
-
+            var adminData = _context.Admin;
             var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"));
             var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
 
            
 
             string str = "";
-            foreach (var item in data)
+            foreach (var item in userData)
             {
                 if (item.userEmail == email && item.userPassword == password)
                 {
@@ -88,19 +84,22 @@ namespace WorkManagement.Controllers
                     var result = new { id = item.userId, AdminId = item.adminId, name = item.userName,status = item.userStatus, role = item.userRole, Company = item.company, token = tokenString };
                     str = JsonConvert.SerializeObject(result);
                 }
-                else if (item.adminEmail == email && item.adminPassword == password)
+            }
+            foreach (var item in adminData)
+            {
+                if (item.Email== email && item.Password == password)
                 {
                     var tokeOptions = new JwtSecurityToken(
                         issuer: "https://localhost:44320",
                         audience: "https://localhost:44320",
                         claims: new List<Claim> {
-                              new Claim(ClaimTypes.Role, item.adminRole)
+                              new Claim(ClaimTypes.Role, item.Role)
                         },
                         expires: DateTime.Now.AddHours(12),
                         signingCredentials: signinCredentials
                     );
                     var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
-                    var result = new { id = item.adminId, AdminId = "",name = item.company, status = item.adminStatus, role = item.adminRole, Company = item.company, token = tokenString };
+                    var result = new { id = item.Id, AdminId = item.Id, name = item.Company, status = item.Status, role = item.Role, token = tokenString };
                     str = JsonConvert.SerializeObject(result);
                 }
             }

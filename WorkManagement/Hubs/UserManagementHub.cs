@@ -7,9 +7,9 @@ namespace WorkManagement.Hubs
 {
     public class UserManagementHub : Hub
     {
-        public async Task SendMessage(object data)
+        public async Task SendMessage(object data,int adminId)
         {
-            await Clients.All.SendAsync("ReceiveMessage", data);
+            await Clients.All.SendAsync("ReceiveMessage", data,adminId);
         }
 
         public async Task SendResultDeleteUser(int userId)
