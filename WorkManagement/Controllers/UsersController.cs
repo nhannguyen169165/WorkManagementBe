@@ -18,7 +18,7 @@ namespace WorkManagement.Controllers
     public class user
     {
         public User[] userData { get; set; }
-
+        public int adminId { get; set; }
 
     }
    
@@ -41,33 +41,52 @@ namespace WorkManagement.Controllers
         [Route("GetAllUser/{AdminId}")]
         public async Task<IActionResult> GetAllUser([FromRoute] int AdminId,string type)
         {
-            var user = _context.User;
-            var userSort = _context.Authentication;
-            string str = "";
-            foreach(var item in user)
-            {
-                foreach(var x in userSort)
-                {
-                    if(x.Admin_id == AdminId)
-                    {
-                        if(x.User_id == item.Id)
-                        {
-                            var data = new { id = item.Id, email = item.Email, name = item.Fullname, password = item.Password, tagname = item.Tagname, role = item.Role, status = item.Status, TokenRegister = item.tokenRegister, TokenResetPassword = item.tokenResetPassword };
-                            str += JsonConvert.SerializeObject(data) + ",";
-                        }
-                    }
-                }
-            }
-            str = str.Remove(str.Length - 1);
-            str = "[" + str + "]";
-            if (user == null)
+            var userData = (from auth in _context.Authentication
+                            join user in _context.User
+                            on auth.User_id equals user.Id
+                            join admin in _context.Admin
+                            on auth.Admin_id equals admin.Id
+                            select new
+                            {
+                                Id = auth.User_id,
+                                FullName = user.Fullname,
+                                TagName = user.Tagname,
+                                Email = user.Email,
+                                Password = user.Password,
+                                Status = user.Status,
+                                Role = user.Role,
+                                tokenRegister = user.tokenRegister,
+                                tokenResetPassword = user.tokenResetPassword,
+                                AdminId = auth.Admin_id,
+                                Company = admin.Company
+                            });
+            if ( userData == null)
             {
                 return NotFound();
             }
             else
             {
-                return Ok(str);
+                string str = "";
+                foreach (var item in userData)
+                {
+                    if (item.AdminId == AdminId)
+                    {
+                        var data = new { id = item.Id, email = item.Email, name = item.FullName, password = item.Password, tagname = item.TagName, role = item.Role, status = item.Status, TokenRegister = item.tokenRegister, TokenResetPassword = item.tokenResetPassword };
+                        str += JsonConvert.SerializeObject(data) + ",";
 
+                    }
+
+                }
+                if(str == "")
+                {
+                    return Ok("[]");
+                }
+                else
+                {
+                    str = str.Remove(str.Length - 1);
+                    str = "[" + str + "]";
+                    return Ok(str);
+                }
             }
         }
 
@@ -152,7 +171,7 @@ namespace WorkManagement.Controllers
             }
             _context.User.Add(u);
             await _context.SaveChangesAsync();
-            a.Admin_id = 1;
+            a.Admin_id = user.adminId;
             a.User_id = u.Id;
             _context.Authentication.Add(a);
             await _context.SaveChangesAsync();

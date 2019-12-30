@@ -9,16 +9,17 @@ namespace WorkManagement.Models
     {
         public int Id { get; set; }
         public string TemplateName { get; set; }
-        public ICollection<Status> Status { get; set; }
+        public int ProjectManagerId { get; set; }
+        public virtual ICollection<StatusTemplate> Status { get; set; }
+        
     }
-
-    public partial class Status
+    public partial class StatusTemplate
     {
-       
-        public int  StatusId { get; set; }
+        public int Id { get; set; }
         public string StatusName { get; set; }
         public int Serial { get; set; }
         public int TemplateId { get; set; }
-        public Template Template { get; set; }
+        public virtual Template Template { get; set; }
     }
+
 }

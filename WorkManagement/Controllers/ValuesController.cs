@@ -6,10 +6,21 @@ using Microsoft.AspNetCore.Mvc;
 using WorkManagement.Models;
 namespace WorkManagement.Controllers
 {
+
+   
+
     [Route("api/[controller]")]
     [ApiController]
     public class ValuesController : ControllerBase
     {
+
+        private readonly WorkManagementContext _context;
+
+        public ValuesController(WorkManagementContext context)
+        {
+            _context = context;
+        }
+
         // GET api/values
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
@@ -24,31 +35,6 @@ namespace WorkManagement.Controllers
             return "value";
         }
 
-        // POST api/values
-        [HttpPost]
-        [Route("CodeFirstDatabase")]
-        public void Post([FromBody] string value)
-        {
-            using (var context = new WorkManagementContext())
-            {
-                var temp = new Template();
-                temp.TemplateName = value;
-
-                context.Template.Add(temp);
-                context.SaveChanges();
-            }
-        }
-
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+      
     }
 }

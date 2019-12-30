@@ -141,52 +141,46 @@ namespace WorkManagement.Controllers
         [Route("GetAllMember/{AdminId},{UserId}")]
         public async Task<IActionResult> GetAllMember([FromRoute] int AdminId, int UserId)
         {
-            var user = _context.User;
-            var userSort = _context.Authentication;
-            var listMember = _context.ListUserInProject;
-            string str = "";
-            
-            if (user == null)
-            {
-                return NotFound();
-            }
-            else if (listMember == null)
-            {
-                return NotFound();
-            }
-            else
-            {
-                foreach (var item in user)
-                {
-                    if(item.Id != UserId)
-                    {
-                        foreach (var x in userSort)
+          
+            var userData = (from auth in _context.Authentication
+                        join user in _context.User
+                        on auth.User_id equals user.Id
+                        join admin in _context.Admin
+                        on auth.Admin_id equals admin.Id
+                        select new
                         {
-                            if (x.Admin_id == AdminId)
-                            {
-                                if (x.User_id == item.Id)
-                                {
-
-                                    if (item.Status == "Active")
-                                    {
-                                        var data = new { id = item.Id, email = item.Email, name = item.Fullname, tagname = item.Tagname };
-                                        str += JsonConvert.SerializeObject(data) + ",";
-                                    }
-                                }
-                            }
+                            Id = auth.User_id,
+                            FullName = user.Fullname,
+                            Email = user.Email,
+                            TagName = user.Tagname,
+                            Status = user.Status,
+                            AdminId = auth.Admin_id
+                       
+                        });
+            string str = "";
+            foreach (var item in userData)
+            {
+                if(item.Id != UserId)
+                {
+                    if (item.AdminId == AdminId)
+                    {
+     
+                        if (item.Status == "Active")
+                        {
+                            var data = new { id = item.Id, email = item.Email, name = item.FullName, tagname = item.TagName };
+                            str += JsonConvert.SerializeObject(data) + ",";
                         }
                     }
-                  
+                        
                 }
-                if (str == "")
-                {
-                    return Ok("null");
-                }
-                str = str.Remove(str.Length - 1);
-                str = "[" + str + "]";
-                return Ok(str);
-
             }
+            if (str == "")
+            {
+                return Ok("[]");
+            }
+            str = str.Remove(str.Length - 1);
+            str = "[" + str + "]";
+            return Ok(str);
         }
 
         // GET: api/Users
@@ -194,29 +188,33 @@ namespace WorkManagement.Controllers
         [Route("GetProjectMember/{ProjectId}")]
         public async Task<IActionResult> GetProjectMember([FromRoute] int ProjectId, string type)
         {
-            var user = _context.User;
-            var listMember = _context.ListUserInProject;
-            if (user == null)
-            {
-                return NotFound();
-            }else if(listMember == null)
+           
+            
+            var listMember = (from listMem in _context.ListUserInProject
+                              join user in _context.User
+                              on listMem.User_id equals user.Id
+                              select new
+                              {
+                                Id = listMem.Id,
+                                ProjectId = listMem.Project_Id,
+                                Uid = user.Id,
+                                FullName = user.Fullname,
+                                Email = user.Email,
+                                TagName = user.Tagname
+
+                             });
+            if(listMember == null)
             {
                 return NotFound();
             }else
             {
                 string str = "";
-                foreach (var item in user)
+                foreach (var item in listMember)
                 {
-                    foreach (var x in listMember)
+                    if (item.ProjectId == ProjectId)
                     {
-                        if (x.Project_Id == ProjectId)
-                        {
-                            if (x.User_id == item.Id)
-                            {
-                                var data = new { id = x.Id, uid = item.Id, email = item.Email, name = item.Fullname, tagname = item.Tagname };
-                                str += JsonConvert.SerializeObject(data) + ",";
-                            }
-                        }
+                        var data = new { id = item.Id, uid = item.Uid, email = item.Email, name = item.FullName, tagname = item.TagName };
+                        str += JsonConvert.SerializeObject(data) + ",";   
                     }
                 }
                 if(str == "")
@@ -300,5 +298,6 @@ namespace WorkManagement.Controllers
         {
             return _context.Project.Any(e => e.Id == id);
         }
+
     }
 }
