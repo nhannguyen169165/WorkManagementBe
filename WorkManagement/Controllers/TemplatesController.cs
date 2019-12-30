@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +32,7 @@ namespace WorkManagement.Controllers
         }
 
         // GET: api/Templates
-        [HttpGet]
+        [HttpGet, Authorize(Roles = "Project Manager")]
         [Route("GetTemplate/{ProjectManagerId}")]
         public async Task<IActionResult> GetTemplate([FromRoute] int ProjectManagerId)
         {
@@ -58,7 +59,7 @@ namespace WorkManagement.Controllers
         }
 
         // GET: api/Templates/5
-        [HttpGet]
+        [HttpGet, Authorize(Roles = "Project Manager")]
         [Route("GetTemplateDetail/{TemplateId},{ProjectManagerId}")]
         public async Task<IActionResult> GetTemplateDetail([FromRoute] int TemplateId,[FromRoute] int ProjectManagerId)
         {
@@ -102,7 +103,7 @@ namespace WorkManagement.Controllers
 
 
         // POST: api/Templates
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "Project Manager")]
         [Route("CreateTemplate")]
         public async Task<IActionResult> CreateTemplate([FromBody] template template)
         {
@@ -121,7 +122,7 @@ namespace WorkManagement.Controllers
             return Ok(result);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "Project Manager")]
         [Route("AddNewStatus/{TemplateId}")]
         public async Task<IActionResult> AddNewStatus([FromRoute] int TemplateId,[FromBody] status status)
         {
@@ -142,7 +143,7 @@ namespace WorkManagement.Controllers
         }
 
         // PUT: api/Projects/5
-        [HttpPut]
+        [HttpPut, Authorize(Roles = "Project Manager")]
         [Route("EditTemplate/{id}")]
         public async Task<IActionResult> UpdateTemplate([FromRoute] int id, [FromBody] template template)
         {
@@ -174,7 +175,7 @@ namespace WorkManagement.Controllers
         }
 
         // PUT: api/Projects/5
-        [HttpPut]
+        [HttpPut, Authorize(Roles = "Project Manager")]
         [Route("EditStatusTemplate")]
         public async Task<IActionResult> UpdateStatusTemplate([FromBody] status status)
         {
@@ -205,7 +206,7 @@ namespace WorkManagement.Controllers
         }
 
         // DELETE: api/Templates/5
-        [HttpDelete]
+        [HttpDelete, Authorize(Roles = "Project Manager")]
         [Route("DeleteTemplate/{id}")]
         public async Task<IActionResult> DeleteTemplate([FromRoute] int id)
         {
@@ -235,7 +236,7 @@ namespace WorkManagement.Controllers
         }
 
         // DELETE: api/Templates/5
-        [HttpDelete]
+        [HttpDelete, Authorize(Roles = "Project Manager")]
         [Route("DeleteStatus/{id}")]
         public async Task<IActionResult> DeleteStatus([FromRoute] int id)
         {
