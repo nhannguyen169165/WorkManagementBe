@@ -13,5 +13,11 @@ namespace WorkManagement.Hubs
         {
             await Clients.All.SendAsync("ReceiveMessage", data, adminId, uid);
         }
+
+        public async Task SendRequesChangeStatusTemplate(int templateId)
+        {
+            await Clients.All.SendAsync("ReceiveRequesChangeStatusTemplate",templateId);
+        }
     }
 }
+

@@ -48,8 +48,8 @@ namespace WorkManagement.Controllers
             str = str.Remove(str.Length - 1);
             str = "[" + str + "]";
             if (template == null)
-            {
-                return NotFound();
+            {    
+               return Ok("[]");
             }
             else
             {
@@ -65,7 +65,7 @@ namespace WorkManagement.Controllers
         {
 
             var template = (from temp in _context.Template
-                              join stTemp in _context.StatusTemplate
+                              join stTemp in _context.StatusTemplate.OrderBy((m)=> m.Serial)
                               on temp.Id equals stTemp.TemplateId
                               select new
                               {
@@ -123,8 +123,8 @@ namespace WorkManagement.Controllers
         }
 
         [HttpPost, Authorize(Roles = "Project Manager")]
-        [Route("AddNewStatus/{TemplateId}")]
-        public async Task<IActionResult> AddNewStatus([FromRoute] int TemplateId,[FromBody] status status)
+        [Route("AddNewStatus")]
+        public async Task<IActionResult> AddNewStatus([FromBody] status status)
         {
 
             string str = "Create Status Template Successfully";
@@ -134,7 +134,7 @@ namespace WorkManagement.Controllers
 
                 statusTemp.StatusName = item.StatusName;
                 statusTemp.Serial= item.Serial;
-                statusTemp.TemplateId = TemplateId;
+                statusTemp.TemplateId = item.TemplateId;
             }
             _context.StatusTemplate.Add(statusTemp);
             await _context.SaveChangesAsync();
