@@ -185,7 +185,7 @@ namespace WorkManagement.Controllers
     
             foreach (var item in status.statusData)
             {
-                    var thisStatusTemplate = await _context.StatusTemplate.SingleOrDefaultAsync(m => m.Id == item.Id);
+                var thisStatusTemplate = await _context.StatusTemplate.SingleOrDefaultAsync(m => m.Id == item.Id);
                 if (item.StatusName == null)
                 {
                     thisStatusTemplate.Serial = item.Serial;
@@ -194,7 +194,7 @@ namespace WorkManagement.Controllers
                 {
                     thisStatusTemplate.StatusName = item.StatusName;
                 }
-                else if(item.Relation != 0)
+                else if(item.Relation > 0)
                 {
                     thisStatusTemplate.Relation = item.Serial;
                 }

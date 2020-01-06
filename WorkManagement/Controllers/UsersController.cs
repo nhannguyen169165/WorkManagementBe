@@ -57,6 +57,7 @@ namespace WorkManagement.Controllers
                                 Role = user.Role,
                                 tokenRegister = user.tokenRegister,
                                 tokenResetPassword = user.tokenResetPassword,
+                                date = user.tokenRegisterDate,
                                 AdminId = auth.Admin_id,
                                 Company = admin.Company
                             });
@@ -71,7 +72,7 @@ namespace WorkManagement.Controllers
                 {
                     if (item.AdminId == AdminId)
                     {
-                        var data = new { id = item.Id, email = item.Email, name = item.FullName, password = item.Password, tagname = item.TagName, role = item.Role, status = item.Status, TokenRegister = item.tokenRegister, TokenResetPassword = item.tokenResetPassword };
+                        var data = new { id = item.Id, email = item.Email, name = item.FullName, password = item.Password, tagname = item.TagName, role = item.Role, status = item.Status, TokenRegister = item.tokenRegister, TokenResetPassword = item.tokenResetPassword,Date = item.date };
                         str += JsonConvert.SerializeObject(data) + ",";
 
                     }
