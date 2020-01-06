@@ -74,7 +74,8 @@ namespace WorkManagement.Controllers
                                   ProjectManagerId = temp.ProjectManagerId,
                                   StatusId = stTemp.Id,
                                   StatusName = stTemp.StatusName,
-                                  Serial = stTemp.Serial
+                                  Serial = stTemp.Serial,
+                                  Relation = stTemp.Relation
                               });
             if (template == null)
             {
@@ -87,7 +88,7 @@ namespace WorkManagement.Controllers
                 {
                     if (item.Id == TemplateId && item.ProjectManagerId == ProjectManagerId)
                     {
-                        var data = new { id = item.Id, templateName = item.TemplateName, statusId = item.StatusId, statusName = item.StatusName, serial = item.Serial };
+                        var data = new { id = item.Id, templateName = item.TemplateName, statusId = item.StatusId, statusName = item.StatusName, serial = item.Serial,relation = item.Relation };
                         str += JsonConvert.SerializeObject(data) + ",";
                     }
                 }
@@ -135,6 +136,7 @@ namespace WorkManagement.Controllers
                 statusTemp.StatusName = item.StatusName;
                 statusTemp.Serial= item.Serial;
                 statusTemp.TemplateId = item.TemplateId;
+                statusTemp.Relation = 0;
             }
             _context.StatusTemplate.Add(statusTemp);
             await _context.SaveChangesAsync();
@@ -192,10 +194,9 @@ namespace WorkManagement.Controllers
                 {
                     thisStatusTemplate.StatusName = item.StatusName;
                 }
-                else
+                else if(item.Relation != 0)
                 {
-                    thisStatusTemplate.Serial = item.Serial;
-                    thisStatusTemplate.StatusName = item.StatusName;
+                    thisStatusTemplate.Relation = item.Serial;
                 }
                     _context.StatusTemplate.Update(thisStatusTemplate);
             }
