@@ -14,12 +14,16 @@ namespace WorkManagement.Controllers
     public class project
     {
         public Project[] projectData;
+        public StatusProject[] statusData;
     }
     public class listUser
     {
         public ListUserInProject[] listUserData;
     }
-
+    public class statusProject
+    {
+        public StatusProject[] statusData;
+    }
     [Route("api/[controller]")]
     [ApiController]
     public class ProjectsController : ControllerBase
@@ -119,7 +123,7 @@ namespace WorkManagement.Controllers
 
         // POST: api/Projects
         [HttpPost]
-        [Route("AddProject"),Authorize(Roles = "Project Manager")]
+        [Route("AddProject")]
         public async Task<IActionResult> AddProject([FromBody] project project)
         {
             string str = "Create project successfully";
@@ -133,9 +137,21 @@ namespace WorkManagement.Controllers
             }
             _context.Project.Add(p);
             await _context.SaveChangesAsync();
+            foreach (var item in project.statusData)
+            {
+                StatusProject sp = new StatusProject();
+                sp.StatusName = item.StatusName;
+                sp.Serial = item.Serial;
+                sp.Relation = item.Relation;
+                sp.ProjectId = p.Id;
+                _context.StatusProject.Add(sp);
+            }
+            await _context.SaveChangesAsync();
             var result = JsonConvert.SerializeObject(new { result = str });
             return Ok(result);
         }
+
+       
         // GET: api/Users
         [HttpGet, Authorize(Roles = "Project Manager")]
         [Route("GetAllMember/{AdminId},{UserId}")]

@@ -58,10 +58,29 @@ namespace WorkManagement.Controllers
             }
         }
 
+        [HttpGet("{id}"), Authorize(Roles = "Project Manager")]
+        [Route("GetTemplateDetail/{id}")]
+        public async Task<IActionResult> GetTemplateDetail([FromRoute] int id)
+        {
+            var template = await _context.Template.SingleOrDefaultAsync(m => m.Id == id);
+            var data = new { id = template.Id, templateName = template.TemplateName};
+            var str = JsonConvert.SerializeObject(data);
+            if (template == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(str);
+
+            }
+        }
+
+
         // GET: api/Templates/5
         [HttpGet, Authorize(Roles = "Project Manager")]
-        [Route("GetTemplateDetail/{TemplateId},{ProjectManagerId}")]
-        public async Task<IActionResult> GetTemplateDetail([FromRoute] int TemplateId,[FromRoute] int ProjectManagerId)
+        [Route("GetStatusTemplate/{TemplateId},{ProjectManagerId}")]
+        public async Task<IActionResult> GetStatusTemplate([FromRoute] int TemplateId,[FromRoute] int ProjectManagerId)
         {
 
             var template = (from temp in _context.Template
@@ -186,7 +205,7 @@ namespace WorkManagement.Controllers
             foreach (var item in status.statusData)
             {
                 var thisStatusTemplate = await _context.StatusTemplate.SingleOrDefaultAsync(m => m.Id == item.Id);
-                if (item.StatusName == null)
+                if (item.StatusName == null && item.Serial > 0)
                 {
                     thisStatusTemplate.Serial = item.Serial;
                 }
@@ -194,9 +213,9 @@ namespace WorkManagement.Controllers
                 {
                     thisStatusTemplate.StatusName = item.StatusName;
                 }
-                else if(item.Relation > 0)
+                else
                 {
-                    thisStatusTemplate.Relation = item.Serial;
+                    thisStatusTemplate.Relation = item.Relation;
                 }
                     _context.StatusTemplate.Update(thisStatusTemplate);
             }
