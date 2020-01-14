@@ -92,6 +92,7 @@ namespace WorkManagement
                 routes.MapHub<UserManagementHub>("/userManagement");
                 routes.MapHub<ProjectManagementHub>("/projectManagement");
                 routes.MapHub<TemplateManagementHub>("/templateManagement");
+                routes.MapHub<TaskManagementHub>("/taskManagement");
             });
         }
     }

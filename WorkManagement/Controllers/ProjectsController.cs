@@ -11,16 +11,16 @@ using WorkManagement.Models;
 
 namespace WorkManagement.Controllers
 {
-    public class project
+    public class ProjectModel
     {
         public Project[] projectData;
         public StatusProject[] statusData;
     }
-    public class listUser
+    public class ListUserModel
     {
         public ListUserInProject[] listUserData;
     }
-    public class statusProject
+    public class StatusProjectModel
     {
         public StatusProject[] statusData;
     }
@@ -88,7 +88,7 @@ namespace WorkManagement.Controllers
         // PUT: api/Projects/5
         [HttpPut]
         [Route("EditProject/{id}")]
-        public async Task<IActionResult> UpdateProject([FromRoute] int id, [FromBody] project project)
+        public async Task<IActionResult> UpdateProject([FromRoute] int id, [FromBody] ProjectModel project)
         {
             string str = "";
             var thisProject = await _context.Project.SingleOrDefaultAsync(m => m.Id == id);
@@ -124,7 +124,7 @@ namespace WorkManagement.Controllers
         // POST: api/Projects
         [HttpPost]
         [Route("AddProject")]
-        public async Task<IActionResult> AddProject([FromBody] project project)
+        public async Task<IActionResult> AddProject([FromBody] ProjectModel project)
         {
             string str = "Create project successfully";
             Project p = new Project();
@@ -247,7 +247,7 @@ namespace WorkManagement.Controllers
         // POST: api/Projects
         [HttpPost]
         [Route("AddMember"), Authorize(Roles = "Project Manager")]
-        public async Task<IActionResult> AddMember([FromBody] listUser listUser)
+        public async Task<IActionResult> AddMember([FromBody] ListUserModel listUser)
         {
             string str = "Add member successfully";
             foreach (var item in listUser.listUserData)
@@ -310,6 +310,80 @@ namespace WorkManagement.Controllers
      
         }
 
+        [HttpPost, Authorize(Roles = "Project Manager")]
+        [Route("AddNewStatus")]
+        public async Task<IActionResult> AddNewStatus([FromBody] StatusProjectModel status)
+        {
+
+            string str = "Create Status Project Successfully";
+            StatusProject statusProject = new StatusProject();
+            foreach (var item in status.statusData)
+            {
+
+                statusProject.StatusName = item.StatusName;
+                statusProject.Serial = item.Serial;
+                statusProject.ProjectId = item.ProjectId;
+                statusProject.Relation = 0;
+            }
+            _context.StatusProject.Add(statusProject);
+            await _context.SaveChangesAsync();
+            var result = JsonConvert.SerializeObject(new { result = str });
+            return Ok(result);
+        }
+
+        // PUT: api/Projects/5
+        [HttpPut, Authorize(Roles = "Project Manager")]
+        [Route("EditStatusProject")]
+        public async Task<IActionResult> UpdateStatusProject([FromBody] StatusProjectModel status)
+        {
+            string str = "";
+
+            foreach (var item in status.statusData)
+            {
+                var thisStatusProject = await _context.StatusProject.SingleOrDefaultAsync(m => m.Id == item.Id);
+                if (item.StatusName == null && item.Serial > 0)
+                {
+                    thisStatusProject.Serial = item.Serial;
+                }
+                else if (item.StatusName != null && item.Serial == 0)
+                {
+                    thisStatusProject.StatusName = item.StatusName;
+                }
+                else
+                {
+                    thisStatusProject.Relation = item.Relation;
+                }
+                _context.StatusProject.Update(thisStatusProject);
+            }
+            await _context.SaveChangesAsync();
+            str = "update status successfully";
+            var result = JsonConvert.SerializeObject(new { result = str });
+            return Ok(result);
+        }
+
+        // DELETE: api/Templates/5
+        [HttpDelete, Authorize(Roles = "Project Manager")]
+        [Route("DeleteStatus/{id}")]
+        public async Task<IActionResult> DeleteStatus([FromRoute] int id)
+        {
+            var statusProject = await _context.StatusProject.FirstOrDefaultAsync(m => m.Id == id);
+
+            string str = "Xóa thành công";
+            var result = JsonConvert.SerializeObject(new { result = str });
+            if (statusProject == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                _context.StatusProject.Remove(statusProject);
+
+                await _context.SaveChangesAsync();
+                return Ok(result);
+            }
+
+
+        }
         private bool ProjectExists(int id)
         {
             return _context.Project.Any(e => e.Id == id);

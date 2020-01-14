@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace WorkManagement.Controllers
 {
-    public class email
+    public class Email
     {
         public string titleMessage { get; set; }
         public string emailTo { get; set; }
@@ -26,7 +26,7 @@ namespace WorkManagement.Controllers
     {
         [HttpPost]
         [Route("SendEmail")]
-        public async Task<IActionResult> SendEmail([FromBody] email email)
+        public async Task<IActionResult> SendEmail([FromBody] Email email)
         {
             try
             {

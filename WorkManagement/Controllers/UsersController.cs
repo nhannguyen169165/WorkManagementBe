@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace WorkManagement.Controllers
 {
-    public class user
+    public class UserModel
     {
         public User[] userData { get; set; }
         public int adminId { get; set; }
@@ -113,7 +113,7 @@ namespace WorkManagement.Controllers
             // PUT: api/Users/5
         [HttpPut,Authorize(Roles = "Admin")]
         [Route("EditUser/{id}")]
-        public async Task<IActionResult> UpdateUser([FromRoute] int id, [FromBody] user user)
+        public async Task<IActionResult> UpdateUser([FromRoute] int id, [FromBody] UserModel user)
         {
             string str = "";
             var thisUser = await _context.User.SingleOrDefaultAsync(m => m.Id == id);
@@ -152,7 +152,7 @@ namespace WorkManagement.Controllers
         // POST: api/Users
         [HttpPost]
         [Route("CreateUser"),Authorize(Roles = "Admin")]
-        public async Task<IActionResult> CreateUser([FromBody] user user)
+        public async Task<IActionResult> CreateUser([FromBody] UserModel user)
         {
             string str = "Tạo thành công";
             User u = new User();
@@ -324,7 +324,7 @@ namespace WorkManagement.Controllers
 
         [HttpPost]
         [Route("CheckEmailExists")]
-        public IActionResult checkEmailExists([FromBody] user user)
+        public IActionResult checkEmailExists([FromBody] UserModel user)
         {
             var u = _context.User;
             var email = "";
@@ -352,7 +352,7 @@ namespace WorkManagement.Controllers
 
         [HttpPut]
         [Route("EditUserNoAuth/{id}")]
-        public async Task<IActionResult> EditUserNoAuth([FromRoute] int id, [FromBody] user user)
+        public async Task<IActionResult> EditUserNoAuth([FromRoute] int id, [FromBody] UserModel user)
         {
             string str = "";
             var thisUser = await _context.User.SingleOrDefaultAsync(m => m.Id == id);

@@ -12,11 +12,11 @@ using WorkManagement.Models;
 namespace WorkManagement.Controllers
 {
 
-    public class template {
+    public class TemplateModel {
         public Template[] templateData { get; set; }
     }
 
-    public class status
+    public class StatusModel
     {
         public StatusTemplate[] statusData { get; set; }
     }
@@ -125,7 +125,7 @@ namespace WorkManagement.Controllers
         // POST: api/Templates
         [HttpPost, Authorize(Roles = "Project Manager")]
         [Route("CreateTemplate")]
-        public async Task<IActionResult> CreateTemplate([FromBody] template template)
+        public async Task<IActionResult> CreateTemplate([FromBody] TemplateModel template)
         {
 
             string str = "Create Template Successfully";
@@ -144,7 +144,7 @@ namespace WorkManagement.Controllers
 
         [HttpPost, Authorize(Roles = "Project Manager")]
         [Route("AddNewStatus")]
-        public async Task<IActionResult> AddNewStatus([FromBody] status status)
+        public async Task<IActionResult> AddNewStatus([FromBody] StatusModel status)
         {
 
             string str = "Create Status Template Successfully";
@@ -166,7 +166,7 @@ namespace WorkManagement.Controllers
         // PUT: api/Projects/5
         [HttpPut, Authorize(Roles = "Project Manager")]
         [Route("EditTemplate/{id}")]
-        public async Task<IActionResult> UpdateTemplate([FromRoute] int id, [FromBody] template template)
+        public async Task<IActionResult> UpdateTemplate([FromRoute] int id, [FromBody] TemplateModel template)
         {
             string str = "";
             var thisTemplate = await _context.Template.SingleOrDefaultAsync(m => m.Id == id);
@@ -198,7 +198,7 @@ namespace WorkManagement.Controllers
         // PUT: api/Projects/5
         [HttpPut, Authorize(Roles = "Project Manager")]
         [Route("EditStatusTemplate")]
-        public async Task<IActionResult> UpdateStatusTemplate([FromBody] status status)
+        public async Task<IActionResult> UpdateStatusTemplate([FromBody] StatusModel status)
         {
             string str = "";
     

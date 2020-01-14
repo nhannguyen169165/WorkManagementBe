@@ -20,5 +20,6 @@ namespace WorkManagement.Models
         public string tokenResetPassword { get; set; }
         public DateTime tokenResetPasswordDate { get; set; }
         public string statusResetPassword { get; set; }
+        public virtual ICollection<Task> TaskList { get; set; }
     }
 }
