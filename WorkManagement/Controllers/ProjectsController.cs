@@ -216,7 +216,8 @@ namespace WorkManagement.Controllers
                                 Uid = user.Id,
                                 FullName = user.Fullname,
                                 Email = user.Email,
-                                TagName = user.Tagname
+                                TagName = user.Tagname,
+                                Color = user.Color
 
                              });
             if(listMember == null)
@@ -229,7 +230,7 @@ namespace WorkManagement.Controllers
                 {
                     if (item.ProjectId == ProjectId)
                     {
-                        var data = new { id = item.Id, uid = item.Uid, email = item.Email, name = item.FullName, tagname = item.TagName };
+                        var data = new { id = item.Id, uid = item.Uid, email = item.Email, name = item.FullName, tagname = item.TagName,color = item.Color };
                         str += JsonConvert.SerializeObject(data) + ",";   
                     }
                 }
@@ -308,6 +309,31 @@ namespace WorkManagement.Controllers
                 return Ok(result);
             }
      
+        }
+
+        [HttpGet]
+        [Route("GetListStatus/{ProjectId}")]
+        public async Task<IActionResult> GetListStatus([FromRoute] int ProjectId)
+        {
+            var listStatus = _context.StatusProject.OrderBy((m) => m.Serial).Where((s) => s.ProjectId == ProjectId);
+            var strStatus = "";
+            foreach (var status in listStatus)
+            {
+                var statusProjectData = new { id = status.Id, statusName = status.StatusName};
+                strStatus += JsonConvert.SerializeObject(statusProjectData) + ",";
+
+            }
+            if (strStatus == "")
+            {
+                return Ok("[]");
+            }
+            else
+            {
+                strStatus = strStatus.Remove(strStatus.Length - 1);
+                strStatus = "[" + strStatus + "]";
+            }
+            return Ok(strStatus);
+
         }
 
         [HttpPost, Authorize(Roles = "Project Manager")]

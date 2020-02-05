@@ -12,6 +12,10 @@ namespace WorkManagement.Hubs
         {
             await Clients.All.SendAsync("ReceiveRequesChangeStatusTask", projectId);
         }
+        public async Task SendRequestNewTaskData(int projectId)
+        {
+            await Clients.All.SendAsync("ReceiveRequestNewTaskData", projectId);
+        }
     }
 
 }

@@ -55,6 +55,7 @@ namespace WorkManagement.Controllers
                                 Password = user.Password,
                                 Status = user.Status,
                                 Role = user.Role,
+                                Color = user.Color,
                                 tokenRegister = user.tokenRegister,
                                 tokenResetPassword = user.tokenResetPassword,
                                 date = user.tokenRegisterDate,
@@ -166,6 +167,7 @@ namespace WorkManagement.Controllers
                 u.Tagname = item.Tagname;
                 u.Status = item.Status;
                 u.Role = item.Role;
+                u.Color = item.Color;
                 u.tokenRegister = item.tokenRegister;
                 u.tokenRegisterDate = item.tokenRegisterDate.ToLocalTime();
                 u.tokenResetPasswordDate = today;

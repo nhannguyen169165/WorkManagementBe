@@ -14,6 +14,7 @@ namespace WorkManagement.Models
         public string tokenRegister { get; set; }
 
         public string Status { get; set; }
+        public string Color { get; set; }
 
         public DateTime tokenRegisterDate { get; set; }
 

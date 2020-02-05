@@ -57,6 +57,7 @@ namespace WorkManagement.Controllers
                             userPassword = user.Password,
                             userStatus = user.Status,
                             userRole = user.Role,
+                            userColor = user.Color,
                             adminId = auth.Admin_id,
                             company = admin.Company
                         });
@@ -81,7 +82,7 @@ namespace WorkManagement.Controllers
                         signingCredentials: signinCredentials
                     );
                     var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
-                    var result = new { id = item.userId, AdminId = item.adminId, name = item.userName,status = item.userStatus, role = item.userRole, Company = item.company, token = tokenString };
+                    var result = new { id = item.userId, AdminId = item.adminId, name = item.userName,status = item.userStatus, role = item.userRole, color = item.userColor, Company = item.company, token = tokenString };
                     str = JsonConvert.SerializeObject(result);
                 }
             }

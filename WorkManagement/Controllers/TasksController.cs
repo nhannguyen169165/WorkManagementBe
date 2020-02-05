@@ -31,6 +31,8 @@ namespace WorkManagement.Controllers
         public async Task<IActionResult> GetListTasks([FromRoute] int ProjectId)
         {
             var listStatus = _context.StatusProject.OrderBy((m) => m.Serial).Where((s) => s.ProjectId == ProjectId);
+            var thisProject =  _context.Project.Where((s) => s.Id == ProjectId);
+            var projectName = "";
             var listTasks = (from task in _context.Task
                              join status in _context.StatusProject.OrderBy((m) => m.Serial).Where((s) => s.ProjectId == ProjectId)
                              on task.StatusId equals status.Id
@@ -51,7 +53,11 @@ namespace WorkManagement.Controllers
            
             var strTask = "";
             var strStatus = "";
-            foreach(var status in listStatus)
+            foreach (var project in thisProject)
+            {
+                projectName = project.Name;
+            }
+            foreach (var status in listStatus)
             {
                 strTask = "";
                 foreach (var task in listTasks)
@@ -71,7 +77,7 @@ namespace WorkManagement.Controllers
                     strTask = strTask.Remove(strTask.Length - 1);
                     strTask = "[" + strTask + "]";
                 }
-                var statusProjectData = new { statusId = status.Id, statusName = status.StatusName, statusSerial = status.Serial, statusRelation = status.Relation, projectId = status.ProjectId, tasks = JsonConvert.DeserializeObject(strTask) };
+                var statusProjectData = new { statusId = status.Id, statusName = status.StatusName, statusSerial = status.Serial, statusRelation = status.Relation, projectId = status.ProjectId, projectName = projectName, tasks = JsonConvert.DeserializeObject(strTask) };
                 strStatus += JsonConvert.SerializeObject(statusProjectData) + ",";
              
             }
@@ -88,23 +94,26 @@ namespace WorkManagement.Controllers
             
         }
 
+      
+
         // GET: api/Tasks/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetTask([FromRoute] int id)
+        [HttpGet]
+        [Route("GetTaskDetail/{id}")]
+        public async Task<IActionResult> GetTaskDetail([FromRoute] int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            var task = await _context.Task.SingleOrDefaultAsync(m => m.Id == id);
 
-            var task = await _context.Task.FindAsync(id);
-
+            var data = new { id = task.Id, title = task.Title, description = task.Description, color = task.Color, startDate = task.StartDate, finishDate = task.FinishDate, hours = task.Hours, priority = task.Priority, taskOwnerId = task.TaskOwnerId , statusId = task.StatusId }; ;
+            var str = JsonConvert.SerializeObject(data);
             if (task == null)
             {
                 return NotFound();
             }
+            else
+            {
+                return Ok(str);
 
-            return Ok(task);
+            }
         }
 
         [HttpPost]
@@ -143,10 +152,27 @@ namespace WorkManagement.Controllers
             {
                
                if(item.StatusId> 0)
-                {
+               {
                     thisTask.StatusId = item.StatusId;
-                }
-               
+               }
+               if(
+                    item.Title != null &&
+                    item.Description != null &&
+                    item.Color != null &&
+                    item.Hours > 0 &&
+                    item.Priority != null &&
+                    item.TaskOwnerId > 0
+               )
+               {
+                    thisTask.Title = item.Title;
+                    thisTask.Description = item.Description;
+                    thisTask.Color = item.Color;
+                    thisTask.StartDate = item.StartDate;
+                    thisTask.FinishDate = item.FinishDate;
+                    thisTask.Hours = item.Hours;
+                    thisTask.Priority = item.Priority;
+                    thisTask.TaskOwnerId = item.TaskOwnerId;
+                } 
             }
             _context.Task.Update(thisTask);
             await _context.SaveChangesAsync();
