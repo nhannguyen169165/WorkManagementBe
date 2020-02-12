@@ -139,11 +139,11 @@ namespace WorkManagement.Controllers
             {
                 if (!UserExists(id))
                 {
-                    str = "Người dùng không tồn tại !";
+                    return NotFound();
                 }
                 else
                 {
-                    str = "Cập nhật thành công";
+                    str = "Update success";
                 }
             }
             var result = JsonConvert.SerializeObject(new { result = str });
@@ -155,7 +155,7 @@ namespace WorkManagement.Controllers
         [Route("CreateUser"),Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateUser([FromBody] UserModel user)
         {
-            string str = "Tạo thành công";
+            string str = "Create success";
             User u = new User();
             Authentication a = new Authentication();
             DateTime today = DateTime.Now;
@@ -179,20 +179,20 @@ namespace WorkManagement.Controllers
             _context.Authentication.Add(a);
             await _context.SaveChangesAsync();
             var result = JsonConvert.SerializeObject(new { result = str });
-           
             return Ok(result);
         }
 
         // DELETE: api/Users/5
-        [HttpDelete,Authorize(Roles = "Admin")]
+        //[HttpDelete,Authorize(Roles = "Admin")]
+        [HttpDelete]
         [Route("DeleteUser/{id}")]
         public async Task<IActionResult> DeleteUser([FromRoute] int id)
         {
+       
             var user = await _context.User.FirstOrDefaultAsync(m => m.Id == id);
-            var authentication = await _context.Authentication.FirstOrDefaultAsync(m => m.User_id == id);
-            var project = _context.Project;
-            var listMember = _context.ListUserInProject;
-            string str = "Xóa thành công";
+            var listMember = await _context.ListUserInProject.FirstOrDefaultAsync(l => l.User_id == id);
+            var task = _context.Task.Where((t) => t.TaskOwnerId == id);
+            string str = "Delete success";
             var result = JsonConvert.SerializeObject(new { result = str });
             if (user == null)
             {
@@ -201,33 +201,22 @@ namespace WorkManagement.Controllers
             else
             {
                 _context.User.Remove(user);
-                _context.Authentication.Remove(authentication);
-                foreach(var p in project)
+                if(listMember != null)
                 {
-                    if(p.User_id == id)
-                    {
-                        _context.Project.Remove(p);
-                        foreach(var lm in listMember)
-                        {
-                            if(lm.Project_Id == p.Id)
-                            {
-                                _context.ListUserInProject.Remove(lm);
-                            }      
-                        }
-                    }
+                    _context.ListUserInProject.Remove(listMember);
                 }
-                foreach (var lm in listMember)
+                if(task != null)
                 {
-                    if (lm.User_id == id)
+                    foreach(var t in task)
                     {
-                        _context.ListUserInProject.Remove(lm);
+                        var thisTask = await _context.Task.SingleOrDefaultAsync(m => m.Id == t.Id);
+                        thisTask.TaskOwnerId = 0;
+                        _context.Task.Update(thisTask);
                     }
                 }
                 await _context.SaveChangesAsync();
                 return Ok(result);
             }
-
-           
         }
 
         private bool UserExists(int id)
@@ -330,7 +319,7 @@ namespace WorkManagement.Controllers
         {
             var u = _context.User;
             var email = "";
-            var result = "";
+            var result = "" ;
             if (u == null)
             {
                 return NotFound();
@@ -386,11 +375,11 @@ namespace WorkManagement.Controllers
             {
                 if (!UserExists(id))
                 {
-                    str = "Người dùng không tồn tại !";
+                    return NotFound();
                 }
                 else
                 {
-                    str = "Cập nhật thành công";
+                    str = "Update Success";
                 }
             }
             var result = JsonConvert.SerializeObject(new { result = str });

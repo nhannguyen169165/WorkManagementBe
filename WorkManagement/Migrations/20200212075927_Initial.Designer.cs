@@ -10,7 +10,7 @@ using WorkManagement.Models;
 namespace WorkManagement.Migrations
 {
     [DbContext(typeof(WorkManagementContext))]
-    [Migration("20191228025046_Initial")]
+    [Migration("20200212075927_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -54,6 +54,10 @@ namespace WorkManagement.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Admin_id");
+
+                    b.HasIndex("User_id");
+
                     b.ToTable("Authentication");
                 });
 
@@ -69,6 +73,10 @@ namespace WorkManagement.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Project_Id");
+
+                    b.HasIndex("User_id");
+
                     b.ToTable("ListUserInProject");
                 });
 
@@ -78,15 +86,27 @@ namespace WorkManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("Color");
+
                     b.Property<string>("Description");
 
+                    b.Property<DateTime>("FinishDate");
+
                     b.Property<string>("Name");
+
+                    b.Property<DateTime>("StartDate");
 
                     b.Property<string>("Status");
 
                     b.Property<int>("User_id");
 
+                    b.Property<string>("WorkingDayPerWeek");
+
+                    b.Property<int>("WorkingTimePerDay");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("User_id");
 
                     b.ToTable("Project");
                 });
@@ -98,6 +118,8 @@ namespace WorkManagement.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int>("ProjectId");
+
+                    b.Property<int>("Relation");
 
                     b.Property<int>("Serial");
 
@@ -116,6 +138,8 @@ namespace WorkManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int>("Relation");
+
                     b.Property<int>("Serial");
 
                     b.Property<string>("StatusName");
@@ -129,11 +153,50 @@ namespace WorkManagement.Migrations
                     b.ToTable("StatusTemplate");
                 });
 
+            modelBuilder.Entity("WorkManagement.Models.Task", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Color");
+
+                    b.Property<string>("Description");
+
+                    b.Property<DateTime>("FinishDate");
+
+                    b.Property<int>("Hours");
+
+                    b.Property<string>("Priority");
+
+                    b.Property<int>("ProjectId");
+
+                    b.Property<DateTime>("StartDate");
+
+                    b.Property<int>("StatusId");
+
+                    b.Property<int>("TaskOwnerId");
+
+                    b.Property<string>("Title");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("StatusId");
+
+                    b.HasIndex("TaskOwnerId");
+
+                    b.ToTable("Task");
+                });
+
             modelBuilder.Entity("WorkManagement.Models.Template", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("AdminId");
 
                     b.Property<string>("TemplateName");
 
@@ -147,6 +210,8 @@ namespace WorkManagement.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Color");
 
                     b.Property<string>("Email");
 
@@ -175,6 +240,40 @@ namespace WorkManagement.Migrations
                     b.ToTable("User");
                 });
 
+            modelBuilder.Entity("WorkManagement.Models.Authentication", b =>
+                {
+                    b.HasOne("WorkManagement.Models.Admin", "admin")
+                        .WithMany("Authentication")
+                        .HasForeignKey("Admin_id")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("WorkManagement.Models.User", "user")
+                        .WithMany("Authentication")
+                        .HasForeignKey("User_id")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("WorkManagement.Models.ListUserInProject", b =>
+                {
+                    b.HasOne("WorkManagement.Models.Project", "Project")
+                        .WithMany("ListMember")
+                        .HasForeignKey("Project_Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("WorkManagement.Models.User", "user")
+                        .WithMany("ListMember")
+                        .HasForeignKey("User_id")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("WorkManagement.Models.Project", b =>
+                {
+                    b.HasOne("WorkManagement.Models.User", "user")
+                        .WithMany("Project")
+                        .HasForeignKey("User_id")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("WorkManagement.Models.StatusProject", b =>
                 {
                     b.HasOne("WorkManagement.Models.Project", "Project")
@@ -188,6 +287,24 @@ namespace WorkManagement.Migrations
                     b.HasOne("WorkManagement.Models.Template", "Template")
                         .WithMany("Status")
                         .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("WorkManagement.Models.Task", b =>
+                {
+                    b.HasOne("WorkManagement.Models.Project", "Project")
+                        .WithMany("TaskList")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("WorkManagement.Models.StatusProject", "StatusProject")
+                        .WithMany("TaskList")
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("WorkManagement.Models.User", "User")
+                        .WithMany("TaskList")
+                        .HasForeignKey("TaskOwnerId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618

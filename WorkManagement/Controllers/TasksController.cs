@@ -48,7 +48,8 @@ namespace WorkManagement.Controllers
                                  FinishDate = task.FinishDate,
                                  Priority = task.Priority,
                                  Hours = task.Hours,
-                                 TaskOwnerName = user.Fullname
+                                 TaskOwnerName = user.Fullname,
+                                 TaskOwnerColor = user.Color
                              });
            
             var strTask = "";
@@ -64,7 +65,7 @@ namespace WorkManagement.Controllers
                 {
                     if(task.StatusId == status.Id)
                     {
-                        var taskData = new { id = task.TaskId, title = task.Title, color = task.Color, startDate = task.StartDate, finishDate = task.FinishDate,hours = task.Hours, priority = task.Priority, assignee = task.TaskOwnerName };
+                        var taskData = new { id = task.TaskId, title = task.Title, color = task.Color, startDate = task.StartDate, finishDate = task.FinishDate,hours = task.Hours, priority = task.Priority, assignee = task.TaskOwnerName, assigneeColor = task.TaskOwnerColor };
                         strTask += JsonConvert.SerializeObject(taskData) + ",";
                     }
                 }
@@ -121,7 +122,7 @@ namespace WorkManagement.Controllers
         public async Task<IActionResult> CreateTask([FromBody] TaskModel taskModel)
         {
 
-            string str = "Create Task Successfully";
+            string str = "Create Successfully";
             Models.Task task = new Models.Task();
             foreach (var item in taskModel.taskData)
             {
@@ -135,6 +136,7 @@ namespace WorkManagement.Controllers
                 task.Priority = item.Priority;
                 task.StatusId = item.StatusId;
                 task.TaskOwnerId = item.TaskOwnerId;
+                task.ProjectId = item.ProjectId;
             }
             _context.Task.Add(task);
             await _context.SaveChangesAsync();
@@ -176,7 +178,7 @@ namespace WorkManagement.Controllers
             }
             _context.Task.Update(thisTask);
             await _context.SaveChangesAsync();
-            str = "update task successfully";
+            str = "update successfully";
             var result = JsonConvert.SerializeObject(new { result = str });
             return Ok(result);
         }

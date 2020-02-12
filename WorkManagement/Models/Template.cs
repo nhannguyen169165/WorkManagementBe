@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -9,7 +10,7 @@ namespace WorkManagement.Models
     {
         public int Id { get; set; }
         public string TemplateName { get; set; }
-        public int ProjectManagerId { get; set; }
+        public int AdminId { get; set; }
         public virtual ICollection<StatusTemplate> Status { get; set; }
         
     }
@@ -20,6 +21,7 @@ namespace WorkManagement.Models
         public int Serial { get; set; }
         public int Relation { get; set; }
         public int TemplateId { get; set; }
+        [ForeignKey("TemplateId")]
         public virtual Template Template { get; set; }
     }
 

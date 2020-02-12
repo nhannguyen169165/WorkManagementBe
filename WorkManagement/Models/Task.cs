@@ -18,9 +18,12 @@ namespace WorkManagement.Models
         public string Priority { get; set; }
         public int StatusId { get; set; }
         public int TaskOwnerId { get; set; }
-        [ForeignKey("StatusId ")]
+        public int ProjectId { get; set; }
+        [ForeignKey("StatusId")]
         public virtual StatusProject StatusProject { get; set; }
-        [ForeignKey("TaskOwnerId ")]
+        [ForeignKey("TaskOwnerId")]
         public virtual User User { get; set; }
+        [ForeignKey("ProjectId")]
+        public virtual Project Project { get; set; }
     }
 }

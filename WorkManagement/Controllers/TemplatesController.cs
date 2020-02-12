@@ -32,11 +32,11 @@ namespace WorkManagement.Controllers
         }
 
         // GET: api/Templates
-        [HttpGet, Authorize(Roles = "Project Manager")]
-        [Route("GetTemplate/{ProjectManagerId}")]
-        public async Task<IActionResult> GetTemplate([FromRoute] int ProjectManagerId)
+        [HttpGet,Authorize]
+        [Route("GetTemplate/{AdminId}")]
+        public async Task<IActionResult> GetTemplate([FromRoute] int AdminId)
         {
-            var template = _context.Template.Where((temp) => temp.ProjectManagerId == ProjectManagerId);
+            var template = _context.Template.Where((temp) => temp.AdminId == AdminId);
             string str = "";
             foreach (var item in template)
             {
@@ -58,7 +58,7 @@ namespace WorkManagement.Controllers
             }
         }
 
-        [HttpGet("{id}"), Authorize(Roles = "Project Manager")]
+        [HttpGet("{id}"), Authorize(Roles = "Admin")]
         [Route("GetTemplateDetail/{id}")]
         public async Task<IActionResult> GetTemplateDetail([FromRoute] int id)
         {
@@ -78,9 +78,9 @@ namespace WorkManagement.Controllers
 
 
         // GET: api/Templates/5
-        [HttpGet, Authorize(Roles = "Project Manager")]
-        [Route("GetStatusTemplate/{TemplateId},{ProjectManagerId}")]
-        public async Task<IActionResult> GetStatusTemplate([FromRoute] int TemplateId,[FromRoute] int ProjectManagerId)
+        [HttpGet, Authorize]
+        [Route("GetStatusTemplate/{TemplateId},{AdminId}")]
+        public async Task<IActionResult> GetStatusTemplate([FromRoute] int TemplateId,[FromRoute] int AdminId)
         {
 
             var template = (from temp in _context.Template
@@ -90,7 +90,7 @@ namespace WorkManagement.Controllers
                               {
                                   Id = temp.Id,
                                   TemplateName = temp.TemplateName,
-                                  ProjectManagerId = temp.ProjectManagerId,
+                                  AdminId = temp.AdminId,
                                   StatusId = stTemp.Id,
                                   StatusName = stTemp.StatusName,
                                   Serial = stTemp.Serial,
@@ -105,7 +105,7 @@ namespace WorkManagement.Controllers
                 string str = "";
                 foreach (var item in template)
                 {
-                    if (item.Id == TemplateId && item.ProjectManagerId == ProjectManagerId)
+                    if (item.Id == TemplateId && item.AdminId == AdminId)
                     {
                         var data = new { id = item.Id, templateName = item.TemplateName, statusId = item.StatusId, statusName = item.StatusName, serial = item.Serial,relation = item.Relation };
                         str += JsonConvert.SerializeObject(data) + ",";
@@ -123,18 +123,18 @@ namespace WorkManagement.Controllers
 
 
         // POST: api/Templates
-        [HttpPost, Authorize(Roles = "Project Manager")]
+        [HttpPost, Authorize(Roles = "Admin")]
         [Route("CreateTemplate")]
         public async Task<IActionResult> CreateTemplate([FromBody] TemplateModel template)
         {
 
-            string str = "Create Template Successfully";
+            string str = "Create Successfully";
             Template temp = new Template();
             foreach (var item in template.templateData)
             {
 
                 temp.TemplateName = item.TemplateName;
-                temp.ProjectManagerId = item.ProjectManagerId;
+                temp.AdminId = item.AdminId;
             }
             _context.Template.Add(temp);
             await _context.SaveChangesAsync();
@@ -142,7 +142,7 @@ namespace WorkManagement.Controllers
             return Ok(result);
         }
 
-        [HttpPost, Authorize(Roles = "Project Manager")]
+        [HttpPost, Authorize(Roles = "Admin")]
         [Route("AddNewStatus")]
         public async Task<IActionResult> AddNewStatus([FromBody] StatusModel status)
         {
@@ -164,7 +164,7 @@ namespace WorkManagement.Controllers
         }
 
         // PUT: api/Projects/5
-        [HttpPut, Authorize(Roles = "Project Manager")]
+        [HttpPut, Authorize(Roles = "Admin")]
         [Route("EditTemplate/{id}")]
         public async Task<IActionResult> UpdateTemplate([FromRoute] int id, [FromBody] TemplateModel template)
         {
@@ -184,11 +184,11 @@ namespace WorkManagement.Controllers
             {
                 if (!TemplateExists(id))
                 {
-                    str = "Template no exists !";
+                    return NotFound();
                 }
                 else
                 {
-                    str = "Updated template successfully";
+                    str = "Updated successfully";
                 }
             }
             var result = JsonConvert.SerializeObject(new { result = str });
@@ -196,7 +196,7 @@ namespace WorkManagement.Controllers
         }
 
         // PUT: api/Projects/5
-        [HttpPut, Authorize(Roles = "Project Manager")]
+        [HttpPut, Authorize(Roles = "Admin")]
         [Route("EditStatusTemplate")]
         public async Task<IActionResult> UpdateStatusTemplate([FromBody] StatusModel status)
         {
@@ -220,18 +220,17 @@ namespace WorkManagement.Controllers
                     _context.StatusTemplate.Update(thisStatusTemplate);
             }
             await _context.SaveChangesAsync();
-            str = "update status successfully";
+            str = "update successfully";
             var result = JsonConvert.SerializeObject(new { result = str });
             return Ok(result);
         }
 
         // DELETE: api/Templates/5
-        [HttpDelete, Authorize(Roles = "Project Manager")]
+        [HttpDelete, Authorize(Roles = "Admin")]
         [Route("DeleteTemplate/{id}")]
         public async Task<IActionResult> DeleteTemplate([FromRoute] int id)
         {
             var template = await _context.Template.FirstOrDefaultAsync(m => m.Id == id);
-            var statusTemplate = _context.StatusTemplate;
             string str = "Xóa thành công";
             var result = JsonConvert.SerializeObject(new { result = str });
             if (template == null)
@@ -241,13 +240,6 @@ namespace WorkManagement.Controllers
             else
             {
                 _context.Template.Remove(template);
-                foreach (var status in statusTemplate)
-                {
-                    if (status.TemplateId == id)
-                    {
-                        _context.StatusTemplate.Remove(status);
-                    }
-                }
                 await _context.SaveChangesAsync();
                 return Ok(result);
             }
@@ -256,7 +248,7 @@ namespace WorkManagement.Controllers
         }
 
         // DELETE: api/Templates/5
-        [HttpDelete, Authorize(Roles = "Project Manager")]
+        [HttpDelete, Authorize(Roles = "Admin")]
         [Route("DeleteStatus/{id}")]
         public async Task<IActionResult> DeleteStatus([FromRoute] int id)
         {

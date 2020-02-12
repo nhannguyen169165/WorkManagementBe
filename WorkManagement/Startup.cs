@@ -45,8 +45,9 @@ namespace WorkManagement
                     });
             });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-          
 
+
+            //var connection = @"Server=ETUITORSERVER;Database=WorkManagement;User Id=workmanagement;Password=P@ssword123;Trusted_Connection=False;ConnectRetryCount=0";
             var connection = @"Server=DESKTOP-ARCB49O;Database=WorkManagement;Trusted_Connection=True;ConnectRetryCount=0";
             services.AddDbContext<WorkManagementContext>(options => options.UseSqlServer(connection));
             services.AddSignalR();

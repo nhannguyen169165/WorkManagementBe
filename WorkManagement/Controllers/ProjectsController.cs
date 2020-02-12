@@ -38,7 +38,7 @@ namespace WorkManagement.Controllers
         // GET: api/Projects
         [HttpGet,Authorize(Roles = "Project Manager")]
         [Route("GetProject/{UserId}")]
-        public async Task<IActionResult> GetProjects([FromRoute] int UserId)
+        public async Task<IActionResult> GetProject([FromRoute] int UserId)
         {
             var project = _context.Project;
             string str = "";
@@ -52,7 +52,7 @@ namespace WorkManagement.Controllers
                 {
                     if (item.User_id == UserId)
                     {
-                        var data = new { id = item.Id, name = item.Name, description = item.Description, status = item.Status, progress = 100 };
+                        var data = new { id = item.Id, name = item.Name, description = item.Description, color = item.Color, status = item.Status, progress = 100 };
                         str += JsonConvert.SerializeObject(data) + ",";
                     }
                 }
@@ -72,7 +72,7 @@ namespace WorkManagement.Controllers
         public async Task<IActionResult> GetProjectDetail([FromRoute] int id)
         {
             var project = await _context.Project.SingleOrDefaultAsync(m => m.Id == id);
-            var data = new { id = project.Id,name = project.Name,description = project.Description};
+            var data = new { id = project.Id,name = project.Name,description = project.Description,startDate = project.StartDate,finishDate = project.FinishDate,workingTimePerDay = project.WorkingTimePerDay,workingDayPerWeek = project.WorkingDayPerWeek,color = project.Color};
             var str = JsonConvert.SerializeObject(data);
             if (project == null)
             {
@@ -98,6 +98,11 @@ namespace WorkManagement.Controllers
                 {
                     thisProject.Name = item.Name;
                     thisProject.Description = item.Description;
+                    thisProject.StartDate = item.StartDate;
+                    thisProject.FinishDate = item.FinishDate;
+                    thisProject.WorkingTimePerDay = item.WorkingTimePerDay;
+                    thisProject.WorkingDayPerWeek = item.WorkingDayPerWeek;
+                    thisProject.Color = item.Color;
                 }
             }
 
@@ -126,12 +131,17 @@ namespace WorkManagement.Controllers
         [Route("AddProject")]
         public async Task<IActionResult> AddProject([FromBody] ProjectModel project)
         {
-            string str = "Create project successfully";
+            string str = "Create successfully";
             Project p = new Project();
             foreach(var item in project.projectData)
             {
                 p.Name = item.Name;
                 p.Description = item.Description;
+                p.StartDate = item.StartDate;
+                p.FinishDate = item.FinishDate;
+                p.WorkingTimePerDay = item.WorkingTimePerDay;
+                p.WorkingDayPerWeek = item.WorkingDayPerWeek;
+                p.Color = item.Color;
                 p.Status = "null";
                 p.User_id = item.User_id;
             }
@@ -153,17 +163,26 @@ namespace WorkManagement.Controllers
 
        
         // GET: api/Users
-        [HttpGet, Authorize(Roles = "Project Manager")]
+        [HttpGet]
         [Route("GetAllMember/{AdminId},{UserId}")]
         public async Task<IActionResult> GetAllMember([FromRoute] int AdminId, int UserId)
         {
-          
-            var userData = (from auth in _context.Authentication
-                        join user in _context.User
+            var listMemberData = (from auth in _context.Authentication
+                            join listMem in _context.ListUserInProject
+                            on auth.User_id equals listMem.User_id
+                            join admin in _context.Admin.Where(a => a.Id == AdminId)
+                            on auth.Admin_id equals admin.Id
+                                  select new
+                            {
+                                Id = auth.User_id
+                            });
+            var userData = (from auth in _context.Authentication.Where(a => a.User_id != UserId)
+                            join user in _context.User
                         on auth.User_id equals user.Id
-                        join admin in _context.Admin
+                        join admin in _context.Admin.Where(a => a.Id == AdminId)
                         on auth.Admin_id equals admin.Id
-                        select new
+       
+                            select new
                         {
                             Id = auth.User_id,
                             FullName = user.Fullname,
@@ -171,24 +190,35 @@ namespace WorkManagement.Controllers
                             TagName = user.Tagname,
                             Status = user.Status,
                             AdminId = auth.Admin_id
-                       
+                            
                         });
             string str = "";
+           
             foreach (var item in userData)
             {
-                if(item.Id != UserId)
+                if (listMemberData.Count() == 0)
                 {
-                    if (item.AdminId == AdminId)
+                    if (item.Status == "Active")
                     {
-     
-                        if (item.Status == "Active")
+                        var data = new { id = item.Id, email = item.Email, name = item.FullName, tagname = item.TagName, adminId = item.AdminId };
+                        str += JsonConvert.SerializeObject(data) + ",";
+                    }
+                
+                }
+                else
+                {
+                    foreach (var listMem in listMemberData)
+                    {
+
+                        if (item.Status == "Active" && item.Id != listMem.Id)
                         {
-                            var data = new { id = item.Id, email = item.Email, name = item.FullName, tagname = item.TagName };
+                            var data = new { id = item.Id, email = item.Email, name = item.FullName, tagname = item.TagName, adminId = item.AdminId };
                             str += JsonConvert.SerializeObject(data) + ",";
                         }
                     }
-                        
                 }
+              
+              
             }
             if (str == "")
             {
@@ -202,7 +232,7 @@ namespace WorkManagement.Controllers
         // GET: api/Users
         [HttpGet, Authorize(Roles = "Project Manager")]
         [Route("GetProjectMember/{ProjectId}")]
-        public async Task<IActionResult> GetProjectMember([FromRoute] int ProjectId, string type)
+        public async Task<IActionResult> GetProjectMember([FromRoute] int ProjectId)
         {
            
             
@@ -250,7 +280,7 @@ namespace WorkManagement.Controllers
         [Route("AddMember"), Authorize(Roles = "Project Manager")]
         public async Task<IActionResult> AddMember([FromBody] ListUserModel listUser)
         {
-            string str = "Add member successfully";
+            string str = "Add successfully";
             foreach (var item in listUser.listUserData)
             {
                 ListUserInProject listUserProject = new ListUserInProject();
@@ -267,7 +297,7 @@ namespace WorkManagement.Controllers
         [HttpDelete]
         [Route("DeleteMember/{id}")]
         public async Task<IActionResult> DeleteMember([FromRoute] int id) { 
-            string str = "Delete member successfully";
+            string str = "Delete successfully";
             var result = JsonConvert.SerializeObject(new { result = str });
             var listUserProject = await _context.ListUserInProject.FirstOrDefaultAsync(m => m.Id == id); 
             if (listUserProject == null)
@@ -288,8 +318,7 @@ namespace WorkManagement.Controllers
         public async Task<IActionResult> DeleteProject([FromRoute] int id)
         {
             var project = await _context.Project.FirstOrDefaultAsync(m => m.Id == id);
-            var listMember = _context.ListUserInProject;
-            string str = "Xóa thành công";
+            string str = "Delete successfully";
             var result = JsonConvert.SerializeObject(new { result = str });
             if (project == null)
             {
@@ -298,13 +327,6 @@ namespace WorkManagement.Controllers
             else
             {
                 _context.Project.Remove(project);
-                foreach (var lm in listMember)
-                {
-                    if (lm.Project_Id == id)
-                    {
-                        _context.ListUserInProject.Remove(lm);
-                    }
-                }
                 await _context.SaveChangesAsync();
                 return Ok(result);
             }
@@ -341,7 +363,7 @@ namespace WorkManagement.Controllers
         public async Task<IActionResult> AddNewStatus([FromBody] StatusProjectModel status)
         {
 
-            string str = "Create Status Project Successfully";
+            string str = "Create Successfully";
             StatusProject statusProject = new StatusProject();
             foreach (var item in status.statusData)
             {
@@ -382,7 +404,7 @@ namespace WorkManagement.Controllers
                 _context.StatusProject.Update(thisStatusProject);
             }
             await _context.SaveChangesAsync();
-            str = "update status successfully";
+            str = "update successfully";
             var result = JsonConvert.SerializeObject(new { result = str });
             return Ok(result);
         }
@@ -394,7 +416,7 @@ namespace WorkManagement.Controllers
         {
             var statusProject = await _context.StatusProject.FirstOrDefaultAsync(m => m.Id == id);
 
-            string str = "Xóa thành công";
+            string str = "Delete Successfully";
             var result = JsonConvert.SerializeObject(new { result = str });
             if (statusProject == null)
             {
